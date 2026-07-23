@@ -2,6 +2,7 @@ fastapi
 uvicorn
 pydantic
 pydantic[email]
+pydantic-settings
 python-dotenv
 python-multipart
 python-jose[cryptography]
@@ -13,10 +14,6 @@ langchain-community
 duckduckgo-search
 pinecone-client
 sqlalchemy
-psycopg2-binary
-GeoAlchemy2
-qrcode[pil]
-Pillow
 httpx
 langchain-google-genai
 gradio
