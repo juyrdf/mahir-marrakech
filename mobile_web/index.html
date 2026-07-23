@@ -1,0 +1,2973 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sahbi – Smart Travel Companion</title>
+    <link rel="manifest" href="/pwa/manifest.json">
+    <meta name="theme-color" content="#12152B">
+    <meta name="description" content="Your smart travel companion for Marrakech. Apple-level premium luxury travel planner.">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #080A10;        /* Deepest Charcoal Onyx */
+            --bg-card: #141724;        /* Sleek Slate Blue-Grey */
+            --primary: #C85C43;        /* Moroccan Ochre/Terracotta */
+            --primary-light: #E07A5F;  /* Ochre Sunrise */
+            --accent-gold: #E5A93C;    /* Burnished Moroccan Gold */
+            --accent-emerald: #0E4B37; /* Moroccan Zellige Emerald */
+            --text-light: #F8F9FC;     /* Soft White */
+            --text-muted: #94A3B8;     /* Lavender Slate */
+            --text-dark: #1E293B;
+            --border-glass: rgba(229, 169, 60, 0.12); /* Gold Tinted Border */
+            --border-glow: rgba(200, 92, 67, 0.25);   /* Terracotta Glow */
+            --gold-glow: rgba(229, 169, 60, 0.22);     /* Gold Glow */
+            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+        }
+
+        /* ===== RESET & BASE STYLE ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Outfit', 'Cairo', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            background-color: #040508;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Centered Mobile Frame Simulator with Zellige SVG Pattern Overlay */
+        .app-container {
+            width: 100%;
+            height: 100%;
+            max-width: 440px;
+            background: var(--bg-deep) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M9 15L15 9l6 6-6 6-6-6zm22-2l6-6 6 6-6 6-6-6zM9 45L15 39l6 6-6 6-6-6zm22-2l6-6 6 6-6 6-6-6z' fill='%23e5a93c' fill-opacity='0.035' fill-rule='evenodd'/%3E%3C/svg%3E");
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+
+        @media (min-width: 441px) {
+            .app-container {
+                height: 94vh;
+                border-radius: 40px;
+                border: 8px solid #141724;
+                box-shadow: 0 20px 60px rgba(229, 169, 60, 0.15);
+            }
+        }
+
+        /* RTL configuration */
+        [dir="rtl"] {
+            font-family: 'Cairo', 'Outfit', sans-serif;
+        }
+
+        /* Dynamic translation utility classes */
+        [dir="rtl"] .ltr-only { display: none !important; }
+        [dir="ltr"] .rtl-only { display: none !important; }
+
+        /* ===== APP HEADER ===== */
+        .app-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(8, 10, 16, 0.85);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid var(--border-glass);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .menu-btn:active {
+            transform: scale(0.9);
+        }
+
+        .header-logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-dot {
+            color: var(--accent-gold);
+            font-weight: 900;
+            font-size: 22px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            background: rgba(248, 249, 252, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-light);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.9);
+            background: rgba(248, 249, 252, 0.1);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 7px;
+            height: 7px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-gold);
+        }
+
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent-gold));
+            border: 1.5px solid var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--text-light);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        /* ===== SCREENS WRAPPER ===== */
+        .screens-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            padding-bottom: 100px; /* Leave space for bottom nav */
+        }
+
+        .screen.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .screen::-webkit-scrollbar {
+            width: 3px;
+        }
+        .screen::-webkit-scrollbar-thumb {
+            background: var(--border-glass);
+            border-radius: 3px;
+        }
+
+        /* ===== 1. HOME SCREEN ===== */
+        .home-hero {
+            position: relative;
+            padding: 30px 20px 48px;
+            background: linear-gradient(180deg, rgba(18, 21, 43, 0.15) 0%, rgba(18,21,43,0.6) 60%, var(--bg-deep) 100%),
+                        url('https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&q=80') no-repeat center top;
+            background-size: cover;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            border-bottom-left-radius: 32px;
+            border-bottom-right-radius: 32px;
+        }
+
+        .hero-welcome {
+            font-size: 11px;
+            color: var(--accent-gold);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--text-light);
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .hero-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        /* Weather Badge & Plan CTA */
+        .hero-quick-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .weather-widget {
+            background: rgba(248, 249, 252, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-light);
+        }
+
+        .plan-cta-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: var(--text-light);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px var(--border-glow);
+            transition: var(--transition);
+        }
+
+        .plan-cta-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 6px var(--border-glow);
+        }
+
+        /* Floating Search Bar */
+        .search-container {
+            padding: 0 20px;
+            margin-top: -24px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .search-bar {
+            background: var(--text-light);
+            border-radius: 24px;
+            padding: 6px 6px 6px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 16px 32px rgba(0,0,0,0.25);
+        }
+
+        [dir="rtl"] .search-bar {
+            padding: 6px 18px 6px 6px;
+        }
+
+        .search-icon-svg {
+            width: 18px;
+            height: 18px;
+            stroke: #64748b;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: var(--text-dark);
+            font-weight: 500;
+            background: transparent;
+        }
+
+        .search-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .filter-btn {
+            background: #f1f5f9;
+            border: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #475569;
+            transition: var(--transition);
+        }
+
+        .filter-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Horizontal Categories */
+        .categories-row {
+            display: flex;
+            gap: 14px;
+            overflow-x: auto;
+            padding: 24px 20px 16px;
+            scrollbar-width: none;
+        }
+
+        .categories-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+            width: 82px;
+            transition: var(--transition);
+        }
+
+        .category-card:active {
+            transform: translateY(-2px);
+            border-color: var(--primary-light);
+            background: rgba(108, 77, 255, 0.1);
+        }
+
+        .category-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .category-card-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        /* Category Color Accents */
+        .icon-explore { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+        .icon-guide { background: rgba(108, 77, 255, 0.15); color: var(--text-light); }
+        .icon-transport { background: rgba(216, 168, 74, 0.15); color: var(--accent-gold); }
+        .icon-stay { background: rgba(139, 92, 246, 0.15); color: #c084fc; }
+        .icon-eat { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .icon-safety { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+
+        /* AI Guide Dark Premium Card */
+        .ai-banner-wrap {
+            padding: 8px 20px 24px;
+        }
+
+        .ai-premium-card {
+            background: linear-gradient(135deg, #11132b 0%, #1e1b4b 50%, #2e1065 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(108, 77, 255, 0.2);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ai-premium-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(108, 77, 255, 0.4) 0%, transparent 70%);
+            filter: blur(20px);
+        }
+
+        .ai-card-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 10;
+        }
+
+        .ai-card-glowing-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gold), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 0 20px var(--border-glow);
+            border: 2px solid var(--text-light);
+        }
+
+        .ai-card-info h4 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 2px;
+        }
+
+        .ai-card-info p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .ai-card-btn {
+            background: var(--text-light);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 18px;
+            color: var(--bg-deep);
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: var(--transition);
+        }
+
+        .ai-card-btn:active {
+            transform: scale(0.95);
+            background: var(--text-muted);
+        }
+
+        /* Trust Indicators Dashboard */
+        .trust-indicator-bar {
+            margin: 0 20px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 14px 10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+
+        .trust-col {
+            border-right: 1px solid var(--border-glass);
+        }
+
+        .trust-col:last-child {
+            border-right: none;
+        }
+
+        .trust-val {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--accent-gold);
+            margin-bottom: 2px;
+        }
+
+        .trust-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Section Header */
+        .section-header {
+            padding: 8px 20px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-header h3 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-light);
+        }
+
+        .section-header a {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Recommended Horizontal Experiences */
+        .recommended-row {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 0 20px 24px;
+            scrollbar-width: none;
+        }
+
+        .recommended-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .exp-card-premium {
+            width: 170px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        }
+
+        .exp-card-premium:active {
+            transform: translateY(-4px);
+            border-color: var(--border-glow);
+        }
+
+        .exp-premium-img {
+            height: 140px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .exp-premium-img::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--bg-card) 0%, transparent 60%);
+        }
+
+        .exp-premium-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(108, 77, 255, 0.85);
+            backdrop-filter: blur(8px);
+            color: var(--text-light);
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .exp-premium-rating {
+            position: absolute;
+            bottom: 10px;
+            left: 12px;
+            background: rgba(18, 21, 43, 0.7);
+            backdrop-filter: blur(6px);
+            color: var(--accent-gold);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 6px;
+            border-radius: 6px;
+        }
+
+        .exp-premium-body {
+            padding: 12px 14px 16px;
+        }
+
+        .exp-premium-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .exp-premium-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .exp-premium-price {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        .exp-premium-duration {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Travel Essentials Section */
+        .essentials-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 0 20px 24px;
+            display: grid;
+        }
+
+        .essential-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .essential-card:active {
+            transform: scale(0.97);
+            border-color: var(--border-glow);
+        }
+
+        .essential-icon-wrapper {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .essential-info h5 {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 2px;
+        }
+
+        .essential-info p {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+
+        /* Premium Membership luxury Card */
+        .membership-wrap {
+            padding: 0 20px 28px;
+        }
+
+        .membership-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #311042 50%, #1e1b4b 100%);
+            border: 1.5px solid var(--accent-gold);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(216,168,74,0.1);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .membership-card:active {
+            transform: scale(0.98);
+        }
+
+        .membership-card-badge {
+            background: var(--accent-gold);
+            color: var(--bg-deep);
+            font-size: 9px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 8px;
+            width: fit-content;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .membership-card h4 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .membership-card p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        .membership-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .mem-feature-tag {
+            background: rgba(216, 168, 74, 0.12);
+            border: 1px solid rgba(216, 168, 74, 0.25);
+            color: var(--accent-gold);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        /* ===== 2. CHAT SCREEN (AI GUIDE) ===== */
+        #screen-chat {
+            background: radial-gradient(ellipse at top, #1E2243 0%, var(--bg-deep) 85%);
+            display: none;
+            padding-bottom: 0;
+        }
+
+        .chat-header-bar {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-deep));
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .sahbi-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gold), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 2px solid var(--text-light);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .sahbi-info h3 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-light);
+        }
+
+        .sahbi-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            scroll-behavior: smooth;
+        }
+
+        .msg {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 80%;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .msg.bot {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .msg-sender {
+            font-size: 10px;
+            color: var(--text-muted);
+            padding: 0 4px;
+        }
+
+        .msg-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .msg.user .msg-bubble {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--text-light);
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px var(--border-glow);
+        }
+
+        .msg.bot .msg-bubble {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            color: var(--text-light);
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .story-block {
+            background: rgba(216, 168, 74, 0.08);
+            border-left: 3px solid var(--accent-gold);
+            padding: 10px 12px;
+            border-radius: 0 10px 10px 0;
+            color: var(--accent-gold);
+            font-style: italic;
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        [dir="rtl"] .story-block {
+            border-left: none;
+            border-right: 3px solid var(--accent-gold);
+            border-radius: 10px 0 0 10px;
+        }
+
+        .action-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .chip {
+            background: rgba(108, 77, 255, 0.1);
+            border: 1px solid var(--border-glow);
+            color: var(--text-light);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .chip:active {
+            background: rgba(108, 77, 255, 0.25);
+            transform: scale(0.96);
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            animation: typing-bounce 1.2s ease-in-out infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing-bounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        /* Quick suggestions */
+        .quick-suggestions {
+            padding: 8px 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            flex-shrink: 0;
+        }
+
+        .quick-suggestions::-webkit-scrollbar { display: none; }
+
+        .suggestion-pill {
+            background: rgba(248, 249, 252, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .suggestion-pill:active {
+            background: rgba(108, 77, 255, 0.15);
+            border-color: var(--primary);
+            color: var(--text-light);
+        }
+
+        /* Chat input */
+        .chat-input-wrap {
+            background: rgba(18, 21, 43, 0.95);
+            backdrop-filter: blur(24px);
+            border-top: 1px solid var(--border-glass);
+            padding: 12px 14px 110px; /* Leave space above bottom bar */
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .input-container {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-glass);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 2px 4px 2px 14px;
+            transition: var(--transition);
+        }
+
+        [dir="rtl"] .input-container {
+            padding: 2px 14px 2px 4px;
+        }
+
+        .input-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--border-glow);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-light);
+            padding: 8px 0;
+            resize: none;
+            min-height: 34px;
+            max-height: 100px;
+            line-height: 1.4;
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--primary));
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px var(--border-glow);
+            flex-shrink: 0;
+            color: var(--text-light);
+        }
+
+        .send-btn:active { transform: scale(0.9); }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .img-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(248, 249, 252, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .img-btn:active { transform: scale(0.9); background: rgba(248, 249, 252, 0.1); }
+
+        .img-preview {
+            display: none;
+            padding: 8px 16px;
+            position: relative;
+            background: var(--bg-deep);
+            flex-shrink: 0;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .img-preview img {
+            height: 70px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-glass);
+        }
+
+        .img-remove {
+            position: absolute;
+            top: 4px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [dir="rtl"] .img-remove {
+            right: auto;
+            left: 20px;
+        }
+
+        /* Result cards inside chat */
+        .result-cards-row {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 4px 0 6px;
+            scrollbar-width: none;
+            margin-top: 6px;
+            width: 100%;
+        }
+        .result-cards-row::-webkit-scrollbar { display: none; }
+
+        .result-card {
+            min-width: 140px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .result-card:active { transform: scale(0.96); }
+        .result-card img { width: 100%; height: 80px; object-fit: cover; }
+        .result-card-body { padding: 8px 10px; }
+        .result-card-name { font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 2px; }
+        .result-card-price { font-size: 11px; color: var(--accent-gold); }
+
+
+        /* ===== 3. BOOKINGS SCREEN (RESTAURANTS & TOURS) ===== */
+        .sub-header {
+            padding: 16px 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sub-title h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-light);
+        }
+
+        .sub-title p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .sub-tabs {
+            display: flex;
+            background: var(--bg-card);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+        }
+
+        .sub-tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sub-tab-btn.active {
+            background: var(--primary);
+            color: var(--text-light);
+        }
+
+        .bookings-list {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .royal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-glass);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .royal-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-image {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .card-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, var(--bg-card) 0%, transparent 60%);
+        }
+
+        .card-tag {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(16, 185, 129, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-light);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        [dir="rtl"] .card-tag {
+            right: auto;
+            left: 14px;
+        }
+
+        .card-rating-badge {
+            position: absolute;
+            bottom: 14px;
+            left: 14px;
+            background: rgba(18, 21, 43, 0.7);
+            backdrop-filter: blur(8px);
+            color: var(--accent-gold);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        [dir="rtl"] .card-rating-badge {
+            left: auto;
+            right: 14px;
+        }
+
+        .card-body {
+            padding: 16px 20px;
+        }
+
+        .card-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .card-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .card-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        .card-duration {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: rgba(248, 249, 252, 0.05);
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        .highlight-box {
+            background: rgba(216, 168, 74, 0.06);
+            border: 1px solid rgba(216, 168, 74, 0.15);
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .highlight-icon { font-size: 20px; }
+        .highlight-label { font-size: 9px; font-weight: 800; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 0.5px; }
+        .highlight-value { font-size: 13px; font-weight: 700; color: var(--text-light); }
+
+        .book-btn {
+            width: 100%;
+            margin-top: 12px;
+            background: linear-gradient(135deg, var(--accent-gold), #b3832c);
+            border: none;
+            border-radius: 12px;
+            color: var(--bg-deep);
+            font-size: 14px;
+            font-weight: 800;
+            padding: 11px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px var(--gold-glow);
+        }
+
+        .book-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, rgba(248,249,252,0.04) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-lg);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ===== 4. SCAM SHIELD / MAP SCREEN ===== */
+        .shield-hero {
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, var(--bg-deep) 100%);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .shield-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.4));
+        }
+
+        .shield-hero h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .shield-hero p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .alert-list {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .alert-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .alert-card.danger { border-left: 4px solid #ef4444; }
+        .alert-card.warn { border-left: 4px solid var(--accent-gold); }
+        .alert-card.safe { border-left: 4px solid var(--accent-emerald); }
+
+        [dir="rtl"] .alert-card.danger { border-left: none; border-right: 4px solid #ef4444; }
+        [dir="rtl"] .alert-card.warn { border-left: none; border-right: 4px solid var(--accent-gold); }
+        [dir="rtl"] .alert-card.safe { border-left: none; border-right: 4px solid var(--accent-emerald); }
+
+        .alert-icon { font-size: 24px; flex-shrink: 0; }
+
+        .alert-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 2px;
+        }
+
+        .alert-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ===== 5. PROFILE & PRICE GUIDE SCREEN ===== */
+        .price-table {
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .price-category-title {
+            padding: 14px 0 6px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .price-row {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .price-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .price-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .price-range {
+            text-align: right;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        [dir="rtl"] .price-range {
+            text-align: left;
+        }
+
+        .price-unit {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Settings card */
+        .settings-box {
+            margin: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+
+        .settings-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 8px;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .setting-label {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .setting-select {
+            background: var(--bg-deep);
+            border: 1px solid var(--border-glass);
+            color: var(--text-light);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            outline: none;
+        }
+
+        .sos-full-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1.5px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 12px;
+            width: 100%;
+            border-radius: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: var(--transition);
+        }
+
+        .sos-full-btn:active {
+            transform: scale(0.98);
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* ===== FLOATING BOTTOM NAVIGATION ===== */
+        .bottom-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(30, 34, 67, 0.7);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            border-radius: 30px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-glass);
+            z-index: 200;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            flex: 1;
+            font-size: 11px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .nav-item-svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            transition: var(--transition);
+        }
+
+        .nav-item:not(.nav-item-center):active {
+            transform: scale(0.95);
+        }
+
+        .nav-item.active {
+            color: var(--accent-gold);
+        }
+
+        .nav-item.active .nav-item-svg {
+            stroke: var(--accent-gold);
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 4px var(--gold-glow));
+        }
+
+        /* Center Floating Glowing Button (AI Assistant) */
+        .nav-item-center {
+            position: relative;
+            z-index: 250;
+            flex: 0;
+            width: 62px;
+            height: 62px;
+            margin-top: -32px;
+        }
+
+        .center-btn-inner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: 3.5px solid var(--bg-deep);
+            box-shadow: 0 8px 24px var(--border-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .center-btn-inner svg {
+            width: 26px;
+            height: 26px;
+            fill: none;
+            stroke: var(--text-light);
+            stroke-width: 2;
+        }
+
+        .nav-item-center:active .center-btn-inner {
+            transform: scale(0.9);
+            box-shadow: 0 4px 12px var(--border-glow);
+        }
+
+        .nav-item-center.active .center-btn-inner {
+            background: linear-gradient(135deg, var(--accent-emerald), var(--accent-emerald));
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+        }
+
+        .center-label {
+            font-size: 10px;
+            font-weight: 800;
+            margin-top: 2px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+
+        <!-- ===== HEADER ===== -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" title="Menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                </button>
+                <div class="header-logo-text">
+                    <span id="txt-logo-title">Sahbi</span><span class="logo-dot">.</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" onclick="toggleLanguage()" title="Language">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
+                </button>
+                <button class="icon-btn" onclick="triggerNotification()" title="Notifications">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notification-badge"></span>
+                </button>
+                <div class="profile-avatar" onclick="showScreen('profile')">S</div>
+            </div>
+        </header>
+
+        <!-- ===== SCREENS CONTAINER ===== -->
+        <div class="screens-container">
+
+            <!-- ===== 1. HOME SCREEN ===== -->
+            <section id="screen-home" class="screen active">
+                <div class="home-hero">
+                    <span class="hero-welcome" id="txt-hero-welcome">WELCOME TO MARRAKECH</span>
+                    <h1 class="hero-title" id="txt-hero-title">Explore like a local.</h1>
+                    <p class="hero-subtitle" id="txt-hero-subtitle">Safe. Smart. Authentic.</p>
+                    <div class="hero-quick-row">
+                        <div class="weather-widget">
+                            <span>🌤️</span>
+                            <span id="txt-hero-weather">24°C Sunny</span>
+                        </div>
+                        <button class="plan-cta-btn" onclick="quickAsk('اقترح مسار رحلة كامل لليوم في مراكش / Suggest a full itinerary plan for today in Marrakech')" id="txt-hero-cta">See Today's Plan</button>
+                    </div>
+                </div>
+
+                <div class="search-container">
+                    <div class="search-bar">
+                        <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input type="text" class="search-input" id="homeSearchInput" placeholder="Where do you want to go?" onkeydown="handleSearchKey(event)">
+                        <button class="filter-btn" onclick="toggleSearchFilter()" title="Filter">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 12h6"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Cards Row -->
+                <div class="categories-row">
+                    <div class="category-card" onclick="quickAsk('ما هي أفضل المعالم والأماكن السياحية في مراكش؟ / What are the best tourist landmarks in Marrakech?')">
+                        <div class="category-icon-box icon-explore">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2 5.6-5.6 2 2-5.6 5.6-2z"/></svg>
+                        </div>
+                        <span class="category-card-name" id="txt-cat-explore">Explore</span>
+                    </div>
+                    <div class="category-card" onclick="showScreen('chat')">
+                        <div class="category-icon-box icon-guide">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m12 3-1.912 5.886L4.2 9l5.887 1.912L12 16.8l1.913-5.888L19.8 9l-5.887-1.914L12 3z"/></svg>
+                        </div>
+                        <span class="category-card-name" id="txt-cat-guide">AI Guide</span>
+                    </div>
+                    <div class="category-card" onclick="quickAsk('أريد حجز وسيلة نقل أو تاكسي عادل / I want to book transport or fair taxi')">
+                        <div class="category-icon-box icon-transport">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="3" width="22" height="13" rx="2"/><path d="M5 21v-2M19 21v-2M1 10h22M7 16H3M21 16h-4"/></svg>
+                        </div>
+                        <span class="category-card-name" id="txt-cat-transport">Transport</span>
+                    </div>
+                    <div class="category-card" onclick="quickAsk('ابحث لي عن رياضات أو فنادق ممتازة في مراكش / Find premium hotels/Riads in Marrakech')">
+                        <div class="category-icon-box icon-stay">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 22V10a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12M2 12h20M2 17h20"/></svg>
+                        </div>
+                        <span class="category-card-name" id="txt-cat-stay">Stay</span>
+                    </div>
+                    <div class="category-card" onclick="showScreen('bookings', 'restaurants')">
+                        <div class="category-icon-box icon-eat">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <span class="category-card-name" id="txt-cat-eat">Restaurants</span>
+                    </div>
+                    <div class="category-card" onclick="showScreen('map')">
+                        <div class="category-icon-box icon-safety">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <span class="category-card-name" id="txt-cat-safety">Safety</span>
+                    </div>
+                </div>
+
+                <!-- AI Assistant Section -->
+                <div class="ai-banner-wrap">
+                    <div class="ai-premium-card">
+                        <div class="ai-card-left">
+                            <div class="ai-card-glowing-avatar">🧞</div>
+                            <div class="ai-card-info">
+                                <h4 id="txt-banner-title">Hi! I'm Sahbi AI 👋</h4>
+                                <p id="txt-banner-sub">Ask me anything about Marrakech.</p>
+                            </div>
+                        </div>
+                        <button class="ai-card-btn" onclick="showScreen('chat')" id="txt-banner-btn">Chat with AI</button>
+                    </div>
+                </div>
+
+                <!-- Trust Indicators Bar -->
+                <div class="trust-indicator-bar">
+                    <div class="trust-col">
+                        <div class="trust-val">500K+</div>
+                        <div class="trust-label" id="txt-t1">Travelers</div>
+                    </div>
+                    <div class="trust-col">
+                        <div class="trust-val">4.9</div>
+                        <div class="trust-label" id="txt-t2">Rating</div>
+                    </div>
+                    <div class="trust-col">
+                        <div class="trust-val">100K</div>
+                        <div class="trust-label" id="txt-t3">Trips Plan</div>
+                    </div>
+                    <div class="trust-col">
+                        <div class="trust-val">1000</div>
+                        <div class="trust-label" id="txt-t4">Vetted</div>
+                    </div>
+                </div>
+
+                <!-- Recommended Experiences -->
+                <div class="section-header">
+                    <h3 id="txt-recommended-title">Recommended Experiences</h3>
+                    <a href="#" onclick="quickAsk('أفضل الأنشطة السياحية والتجارب في مراكش / Top experiences in Marrakech')" id="txt-view-all-1">View all ></a>
+                </div>
+
+                <div class="recommended-row">
+                    <!-- Card 1 -->
+                    <div class="exp-card-premium" onclick="quickAsk('حدثني عن ساحة جامع الفنا والأنشطة فيها / Tell me about Jemaa el-Fna activities')">
+                        <div class="exp-premium-img" style="background-image: url('https://images.unsplash.com/photo-1597848212624-a19eb35e2651?w=300')">
+                            <span class="exp-premium-badge" id="txt-badge-h1">Vetted Partner</span>
+                            <span class="exp-premium-rating">⭐ 4.8</span>
+                        </div>
+                        <div class="exp-premium-body">
+                            <div class="exp-premium-title">Jemaa El Fna</div>
+                            <p style="font-size:11px; color:var(--text-muted);" id="txt-desc-h1">Experience the magic</p>
+                            <div class="exp-premium-meta">
+                                <span class="exp-premium-price" id="txt-price-h1">Free Entry</span>
+                                <span class="exp-premium-duration" id="txt-time-h1">Open 24h</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="exp-card-premium" onclick="quickAsk('كيف أحجز تذاكر وأزور حديقة ماجوريل؟ / How to book and visit Majorelle Garden')">
+                        <div class="exp-premium-img" style="background-image: url('https://images.unsplash.com/photo-1623162720970-13f8cb151b72?w=300')">
+                            <span class="exp-premium-badge" id="txt-badge-h2">Verified</span>
+                            <span class="exp-premium-rating">⭐ 4.7</span>
+                        </div>
+                        <div class="exp-premium-body">
+                            <div class="exp-premium-title">Majorelle Garden</div>
+                            <p style="font-size:11px; color:var(--text-muted);" id="txt-desc-h2">A peaceful escape</p>
+                            <div class="exp-premium-meta">
+                                <span class="exp-premium-price">150 MAD</span>
+                                <span class="exp-premium-duration">⏱ 2 hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="exp-card-premium" onclick="quickAsk('أسعار وتفاصيل رحلات المنطاد بمراكش / Hot air balloon prices and details')">
+                        <div class="exp-premium-img" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300')">
+                            <span class="exp-premium-badge" id="txt-badge-h3">Exclusive</span>
+                            <span class="exp-premium-rating">⭐ 4.9</span>
+                        </div>
+                        <div class="exp-premium-body">
+                            <div class="exp-premium-title">Hot Air Balloon</div>
+                            <p style="font-size:11px; color:var(--text-muted);" id="txt-desc-h3">See it from the sky</p>
+                            <div class="exp-premium-meta">
+                                <span class="exp-premium-price">2000 MAD</span>
+                                <span class="exp-premium-duration">⏱ 4 hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="exp-card-premium" onclick="quickAsk('جولات صحراء أجباي والتخييم / Agafay desert day trip and camps')">
+                        <div class="exp-card-img" style="background-image: url('https://images.unsplash.com/photo-1531265726475-52ad60219627?w=300')">
+                            <span class="exp-premium-badge" id="txt-badge-h4">Adventure</span>
+                            <span class="exp-premium-rating">⭐ 4.8</span>
+                        </div>
+                        <div class="exp-premium-body">
+                            <div class="exp-premium-title">Agafay Desert</div>
+                            <p style="font-size:11px; color:var(--text-muted);" id="txt-desc-h4">Sunset & desert dinner</p>
+                            <div class="exp-premium-meta">
+                                <span class="exp-premium-price">450 MAD</span>
+                                <span class="exp-premium-duration">⏱ 6 hours</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Travel Essentials -->
+                <div class="section-header">
+                    <h3 id="txt-essentials-title">Travel Essentials</h3>
+                    <a href="#" onclick="showScreen('map')" id="txt-view-all-2">See all ></a>
+                </div>
+
+                <div class="essentials-grid">
+                    <div class="essential-card" onclick="quickAsk('محول العملات: كم يساوي الدولار واليورو بالدرهم؟ / Currency converter USD/EUR to MAD')">
+                        <div class="essential-icon-wrapper" style="background: rgba(216, 168, 74, 0.12); color: var(--accent-gold);">💵</div>
+                        <div class="essential-info">
+                            <h5 id="txt-ess-currency">Currency Converter</h5>
+                            <p id="txt-ess-currency-sub">1 USD = 10.1 MAD</p>
+                        </div>
+                    </div>
+                    <div class="essential-card" onclick="quickAsk('مترجم الدارجة المغربية والمصطلحات / Darija Moroccan translator')">
+                        <div class="essential-icon-wrapper" style="background: rgba(108, 77, 255, 0.12); color: var(--primary-light);">🗣️</div>
+                        <div class="essential-info">
+                            <h5 id="txt-ess-trans">AI Translator</h5>
+                            <p id="txt-ess-trans-sub">Speak Darija easily</p>
+                        </div>
+                    </div>
+                    <div class="essential-card" onclick="showScreen('map')">
+                        <div class="essential-icon-wrapper" style="background: rgba(239, 68, 68, 0.12); color: #f87171;">🆘</div>
+                        <div class="essential-info">
+                            <h5 id="txt-ess-emerg">Emergency Numbers</h5>
+                            <p id="txt-ess-emerg-sub">Local Tourist Police</p>
+                        </div>
+                    </div>
+                    <div class="essential-card" onclick="quickAsk('كيف أستعمل الخرائط بدون اتصال بالإنترنت في أزقة المدينة؟ / How to use Offline Maps in Medina?')">
+                        <div class="essential-icon-wrapper" style="background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald);">🗺️</div>
+                        <div class="essential-info">
+                            <h5 id="txt-ess-maps">Offline Maps</h5>
+                            <p id="txt-ess-maps-sub">Navigate Medina easily</p>
+                        </div>
+                    </div>
+                    <div class="essential-card" onclick="quickAsk('كيف أحصل على شريحة اتصال إلكترونية eSIM في المغرب؟ / How to get eSIM in Morocco?')">
+                        <div class="essential-icon-wrapper" style="background: rgba(244, 63, 94, 0.12); color: #fb7185;">📱</div>
+                        <div class="essential-info">
+                            <h5 id="txt-ess-esim">eSIM Morocco</h5>
+                            <p id="txt-ess-esim-sub">Get connected instantly</p>
+                        </div>
+                    </div>
+                    <div class="essential-card" onclick="quickAsk('دليل مواصلات مراكش وحافلات ألسا / Guide to public transport & Alsa bus')">
+                        <div class="essential-icon-wrapper" style="background: rgba(139, 92, 246, 0.12); color: #c084fc;">🚌</div>
+                        <div class="essential-info">
+                            <h5 id="txt-ess-transit">Public Transport</h5>
+                            <p id="txt-ess-transit-sub">Buses & Caleche paths</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Premium Membership Card -->
+                <div class="membership-wrap">
+                    <div class="membership-card" onclick="quickAsk('كيف أشترك في العضوية الممتازة وما ميزاتها؟ / How to subscribe to premium membership?')">
+                        <div class="membership-card-badge" id="txt-member-badge">Sahbi VIP</div>
+                        <h4 id="txt-member-title">Premium Membership</h4>
+                        <p id="txt-member-desc">Unlock premium offline features & authentic VIP local tour booking discounts.</p>
+                        <div class="membership-features">
+                            <span class="mem-feature-tag" id="txt-mf1">Offline Maps</span>
+                            <span class="mem-feature-tag" id="txt-mf2">Priority AI</span>
+                            <span class="mem-feature-tag" id="txt-mf3">VIP Tour Discounts</span>
+                            <span class="mem-feature-tag" id="txt-mf4">Travel Insurance</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== 2. CHAT SCREEN (AI GUIDE) ===== -->
+            <section id="screen-chat" class="screen">
+                <div class="chat-header-bar">
+                    <div class="sahbi-avatar">🧞</div>
+                    <div class="sahbi-info">
+                        <h3 id="txt-chat-header-title">Sahbi – AI Companion</h3>
+                        <p id="txt-chat-header-sub">Ready to guide you through Marrakech</p>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="msg bot">
+                        <span class="msg-sender" id="txt-bot-sender">Sahbi 🧞</span>
+                        <div class="msg-bubble" id="txt-bot-welcome-msg">
+                            Hello friend! 👋<br><br>
+                            I am <strong>Sahbi</strong>, your smart guide in Marrakech. Ask me anything about places, local prices, transit or safety tips... I am here to help! 🌟
+                        </div>
+                        <div class="action-chips" id="welcomeActionChips">
+                            <button class="chip" onclick="quickAsk('كيف أتجنب النصب في الأسواق؟ / How to avoid scams in the Souks?')">🛡️ Safety Tips</button>
+                            <button class="chip" onclick="quickAsk('أنصحني بمطعم لذيذ وموثوق / Recommended restaurant')">🍽️ Best Food</button>
+                            <button class="chip" onclick="quickAsk('ما سعر تاكسي عادل من المطار؟ / Airport taxi fair price')">🚕 Taxi Prices</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-suggestions" id="quickSuggestions">
+                    <button class="suggestion-pill" onclick="quickAsk('ما أجمل الأماكن السياحية في مراكش؟ / Top landmarks')">🗺️ Top Attractions</button>
+                    <button class="suggestion-pill" onclick="quickAsk('كيف أصل لجامع الفنا؟ / How to get to Jemaa el-Fna')">📍 Directions</button>
+                    <button class="suggestion-pill" onclick="quickAsk('ما أسعار الفنادق؟ / Hotel budgets')">🏨 Hotels</button>
+                    <button class="suggestion-pill" onclick="quickAsk('هل مراكش آمنة للسياح؟ / Is Marrakech safe?')">✅ Is it safe?</button>
+                </div>
+
+                <div class="img-preview" id="imgPreview">
+                    <img id="previewImage" src="" alt="preview">
+                    <button class="img-remove" onclick="removeImage()">×</button>
+                </div>
+
+                <div class="chat-input-wrap">
+                    <button class="img-btn" onclick="document.getElementById('fileInput').click()" title="Send image">📷</button>
+                    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleImageSelect(this)">
+
+                    <div class="input-container">
+                        <textarea
+                            class="chat-input"
+                            id="chatInput"
+                            placeholder="Ask Sahbi... (e.g. Is 100 MAD fair for taxi?)"
+                            rows="1"
+                            onkeydown="handleKeyDown(event)"
+                            oninput="autoResize(this)"
+                        ></textarea>
+                    </div>
+
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">➤</button>
+                </div>
+            </section>
+
+            <!-- ===== 3. BOOKINGS SCREEN (RESTAURANTS & TOURS) ===== -->
+            <section id="screen-bookings" class="screen">
+                <div class="sub-header">
+                    <div class="sub-title">
+                        <h2 id="txt-bookings-title">Explore & Book</h2>
+                        <p id="txt-bookings-sub">Top certified deals & trusted places</p>
+                    </div>
+                    <div class="sub-tabs">
+                        <button class="sub-tab-btn active" id="sub-tab-restaurants" onclick="switchBookingsTab('restaurants')">Restaurants</button>
+                        <button class="sub-tab-btn" id="sub-tab-tours" onclick="switchBookingsTab('tours')">Tours & Daytrips</button>
+                    </div>
+                </div>
+
+                <div class="bookings-list" id="restaurantList" style="display: flex;">
+                    <div class="skeleton" style="height: 300px;"></div>
+                    <div class="skeleton" style="height: 300px;"></div>
+                </div>
+
+                <div class="bookings-list" id="tourList" style="display: none;">
+                    <div class="skeleton" style="height: 300px;"></div>
+                    <div class="skeleton" style="height: 300px;"></div>
+                </div>
+            </section>
+
+            <!-- ===== 4. MAP / SCAM SHIELD SCREEN ===== -->
+            <section id="screen-map" class="screen">
+                <div class="shield-hero">
+                    <div class="shield-icon">🛡️</div>
+                    <h2 id="txt-shield-title">ScamShield Dashboard</h2>
+                    <p id="txt-shield-sub">Local guidance & safety tools to avoid traps</p>
+                </div>
+
+                <div class="alert-list" id="scamAlertList">
+                    <div class="alert-card danger">
+                        <span class="alert-icon">🚕</span>
+                        <div>
+                            <div class="alert-title" id="txt-scam-1-title">Taxis without Meters</div>
+                            <div class="alert-desc" id="txt-scam-1-desc">Always demand using the meter or agree on the price beforehand. Fair rate from airport to Medina is between 50-80 MAD.</div>
+                        </div>
+                    </div>
+                    <div class="alert-card warn">
+                        <span class="alert-icon">👤</span>
+                        <div>
+                            <div class="alert-title" id="txt-scam-2-title">Fake Guides</div>
+                            <div class="alert-desc" id="txt-scam-2-desc">Avoid locals proposing to guide you in the alleys for free; they will insist on hefty fees later. Ask Sahbi or use Google Maps.</div>
+                        </div>
+                    </div>
+                    <div class="alert-card warn">
+                        <span class="alert-icon">🐍</span>
+                        <div>
+                            <div class="alert-title" id="txt-scam-3-title">Animal Photos (Jemaa el-Fna)</div>
+                            <div class="alert-desc" id="txt-scam-3-desc">Taking photos with monkeys or snakes costs 100-200 MAD. Confirm the cost first, or they will make a scene.</div>
+                        </div>
+                    </div>
+                    <div class="alert-card danger">
+                        <span class="alert-icon">🧶</span>
+                        <div>
+                            <div class="alert-title" id="txt-scam-4-title">Forced Souvenirs</div>
+                            <div class="alert-desc" id="txt-scam-4-desc">If a merchant forcefully places something in your hand, drop it immediately. This is an aggressive selling technique.</div>
+                        </div>
+                    </div>
+                    <div class="alert-card safe">
+                        <span class="alert-icon">✅</span>
+                        <div>
+                            <div class="alert-title" id="txt-scam-5-title">Trusted Spots</div>
+                            <div class="alert-desc" id="txt-scam-5-desc">Look for restaurants with the "Sahbi Certified" logo. Vetted menus, prices, and high quality are guaranteed.</div>
+                        </div>
+                    </div>
+                    <div class="alert-card safe">
+                        <span class="alert-icon">📞</span>
+                        <div>
+                            <div class="alert-title" id="txt-scam-6-title">Emergency Contacts</div>
+                            <div class="alert-desc" id="txt-scam-6-desc">Tourist Police: <strong>19</strong> | Ambulance: <strong>15</strong> | Royal Gendarmerie: <strong>177</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== 5. PROFILE & PRICE GUIDE SCREEN ===== -->
+            <section id="screen-profile" class="screen">
+                <div class="sub-header">
+                    <div class="sub-title">
+                        <h2 id="txt-profile-title">Profile & Fair Prices</h2>
+                        <p id="txt-profile-sub">Vetted local prices for reference and settings</p>
+                    </div>
+                </div>
+
+                <div class="settings-box">
+                    <div class="settings-title" id="txt-set-title">Application Settings</div>
+                    <div class="setting-row">
+                        <span class="setting-label" id="txt-set-lang">Language / اللغة</span>
+                        <select class="setting-select" id="langSelect" onchange="changeLanguageSelect(this)">
+                            <option value="en">English (Mockup Default)</option>
+                            <option value="ar">العربية (الدارجة/الفصحى)</option>
+                        </select>
+                    </div>
+                    <button class="sos-full-btn" onclick="panicSOS()" id="txt-sos-btn">🆘 SOS Emergency</button>
+                </div>
+
+                <div class="price-table" id="pricesTable">
+                    <div class="price-category-title" id="txt-pcat-transport">🚕 Transport</div>
+                    <div class="price-row">
+                        <div>
+                            <div class="price-name" id="txt-pname-taxi-1">Airport → Medina Taxi</div>
+                            <div class="price-sub" id="txt-psub-taxi-1">Marrakech Menara Airport</div>
+                        </div>
+                        <div>
+                            <div class="price-range" id="txt-prange-taxi-1">50–80 MAD</div>
+                            <div class="price-unit" id="txt-punit-taxi-1">per ride</div>
+                        </div>
+                    </div>
+                    <div class="price-row">
+                        <div>
+                            <div class="price-name" id="txt-pname-taxi-2">City Taxi (Petit Taxi)</div>
+                            <div class="price-sub" id="txt-psub-taxi-2">Short distance inside city</div>
+                        </div>
+                        <div>
+                            <div class="price-range" id="txt-prange-taxi-2">10–25 MAD</div>
+                            <div class="price-unit" id="txt-punit-taxi-2">meter rate</div>
+                        </div>
+                    </div>
+                    <div class="price-row">
+                        <div>
+                            <div class="price-name" id="txt-pname-taxi-3">Horse Carriage (Caleche)</div>
+                            <div class="price-sub" id="txt-psub-taxi-3">Medina sightseeing ride</div>
+                        </div>
+                        <div>
+                            <div class="price-range" id="txt-prange-taxi-3">50–100 MAD</div>
+                            <div class="price-unit" id="txt-punit-taxi-3">per hour</div>
+                        </div>
+                    </div>
+
+                    <div class="price-category-title" id="txt-pcat-food">🍽️ Food & Drinks</div>
+                    <div class="price-row">
+                        <div>
+                            <div class="price-name" id="txt-pname-food-1">Restaurant Tajine</div>
+                            <div class="price-sub" id="txt-psub-food-1">Traditional Moroccan meal</div>
+                        </div>
+                        <div>
+                            <div class="price-range" id="txt-prange-food-1">50–120 MAD</div>
+                            <div class="price-unit" id="txt-punit-food-1">per person</div>
+                        </div>
+                    </div>
+                    <div class="price-row">
+                        <div>
+                            <div class="price-name" id="txt-pname-food-2">Mint Tea (Atay)</div>
+                            <div class="price-sub" id="txt-psub-food-2">Moroccan traditional tea</div>
+                        </div>
+                        <div>
+                            <div class="price-range" id="txt-prange-food-2">10–25 MAD</div>
+                            <div class="price-unit" id="txt-punit-food-2">per pot</div>
+                        </div>
+                    </div>
+                    <div class="price-row">
+                        <div>
+                            <div class="price-name" id="txt-pname-food-3">Fresh Orange Juice</div>
+                            <div class="price-sub" id="txt-psub-food-3">Jemaa el-Fna food stalls</div>
+                        </div>
+                        <div>
+                            <div class="price-range" id="txt-prange-food-3">4–8 MAD</div>
+                            <div class="price-unit" id="txt-punit-food-3">per cup</div>
+                        </div>
+                    </div>
+
+                    <div class="price-category-title" id="txt-pcat-shopping">🛍️ Shopping Souks</div>
+                    <div class="price-row">
+                        <div>
+                            <div class="price-name" id="txt-pname-shop-1">Leather Babouche (Slippers)</div>
+                            <div class="price-sub" id="txt-psub-shop-1">Traditional handmade slippers</div>
+                        </div>
+                        <div>
+                            <div class="price-range" id="txt-prange-shop-1">80–200 MAD</div>
+                            <div class="price-unit" id="txt-punit-shop-1">fair price</div>
+                        </div>
+                    </div>
+                    <div class="price-row">
+                        <div>
+                            <div class="price-name" id="txt-pname-shop-2">Argan Oil (100ml)</div>
+                            <div class="price-sub" id="txt-psub-shop-2">Cosmetic or culinary type</div>
+                        </div>
+                        <div>
+                            <div class="price-range" id="txt-prange-shop-2">60–120 MAD</div>
+                            <div class="price-unit" id="txt-punit-shop-2">per bottle</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 16px 20px; font-size: 12px; color: var(--text-muted); text-align: center;" id="txt-price-tip">
+                    💡 Bargaining Tip: Souk items usually don't have price tags. Start negotiating at 40% of the vendor's price and agree around 60-70%.
+                </div>
+            </section>
+
+        </div>
+
+        <!-- ===== FLOATING BOTTOM NAVIGATION ===== -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" id="nav-home" onclick="showScreen('home')">
+                <svg class="nav-item-svg" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="nav-item-label" id="txt-nav-home">Home</span>
+            </button>
+            <button class="nav-item" id="nav-map" onclick="showScreen('map')">
+                <svg class="nav-item-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span class="nav-item-label" id="txt-nav-map">Safety</span>
+            </button>
+            <button class="nav-item nav-item-center" id="nav-chat" onclick="showScreen('chat')">
+                <div class="center-btn-inner">
+                    <svg viewBox="0 0 24 24"><path d="m12 3-1.912 5.886L4.2 9l5.887 1.912L12 16.8l1.913-5.888L19.8 9l-5.887-1.914L12 3z"/></svg>
+                </div>
+                <span class="center-label" id="txt-nav-chat" style="color:var(--text-light)">AI Guide</span>
+            </button>
+            <button class="nav-item" id="nav-bookings" onclick="showScreen('bookings')">
+                <svg class="nav-item-svg" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16l7-4 7 4z"/></svg>
+                <span class="nav-item-label" id="txt-nav-bookings">Bookings</span>
+            </button>
+            <button class="nav-item" id="nav-profile" onclick="showScreen('profile')">
+                <svg class="nav-item-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span class="nav-item-label" id="txt-nav-profile">Prices</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- ===== TRANSLATION DICTIONARY & CLIENT LOGIC ===== -->
+    <script>
+        // Resolve API Base dynamically: check if running on a local file or local server
+        const API_BASE = (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || window.location.protocol === 'file:')
+            ? 'http://localhost:8000/api/v1'
+            : '/api/v1';
+        let imgBase64 = null;
+        let activeLang = 'en';
+
+        // ===== TRANSLATIONS =====
+        const i18n = {
+            en: {
+                dir: 'ltr',
+                logoTitle: 'Sahbi',
+                welcome: 'WELCOME TO MARRAKECH',
+                heroTitle: 'Explore like a local.',
+                heroSubtitle: 'Safe. Smart. Authentic.',
+                heroWeather: '24°C Sunny',
+                heroCta: "See Today's Plan",
+                searchPlaceholder: 'Where do you want to go?',
+                catExplore: 'Explore',
+                catGuide: 'AI Guide',
+                catTransport: 'Transport',
+                catStay: 'Stay',
+                catEat: 'Restaurants',
+                catSafety: 'Safety',
+                bannerTitle: "Hi! I'm Sahbi AI 👋",
+                bannerSub: "Ask me anything about Marrakech.",
+                bannerBtn: 'Chat with AI',
+                t1: 'Travelers',
+                t2: 'Rating',
+                t3: 'Trips Plan',
+                t4: 'Vetted',
+                recommendedTitle: 'Recommended Experiences',
+                viewAll: 'View all >',
+                seeAll: 'See all >',
+                essentialsTitle: 'Travel Essentials',
+                essCurrency: 'Currency Converter',
+                essCurrencySub: '1 USD = 10.1 MAD',
+                essTrans: 'AI Translator',
+                essTransSub: 'Speak Darija easily',
+                essEmerg: 'Emergency Numbers',
+                essEmergSub: 'Local Tourist Police',
+                essMaps: 'Offline Maps',
+                essMapsSub: 'Navigate Medina easily',
+                essEsim: 'eSIM Morocco',
+                essEsimSub: 'Get connected instantly',
+                essTransit: 'Public Transport',
+                essTransitSub: 'Buses & Caleche paths',
+                memberBadge: 'Sahbi VIP',
+                memberTitle: 'Premium Membership',
+                memberDesc: 'Unlock premium offline features & authentic VIP local tour booking discounts.',
+                mf1: 'Offline Maps',
+                mf2: 'Priority AI',
+                mf3: 'VIP Tour Discounts',
+                mf4: 'Travel Insurance',
+
+                navHome: 'Home',
+                navMap: 'Safety',
+                navChat: 'AI Guide',
+                navBookings: 'Bookings',
+                navProfile: 'Prices',
+
+                chatTitle: 'Sahbi – AI Companion',
+                chatSub: 'Ready to guide you through Marrakech',
+                botSender: 'Sahbi 🧞',
+                botWelcome: 'Hello friend! 👋<br><br>I am <strong>Sahbi</strong>, your smart guide in Marrakech. Ask me anything about places, local prices, transit or safety tips... I am here to help! 🌟',
+                chatPlaceholder: 'Ask Sahbi... (e.g. Is 100 MAD fair for taxi?)',
+
+                bookingsTitle: 'Explore & Book',
+                bookingsSub: 'Top certified deals & trusted places',
+                tabRestaurants: 'Restaurants',
+                tabTours: 'Tours & Daytrips',
+                bookBtn: 'Map & Ask Sahbi',
+                trustBadge: 'Verified',
+                dishLabel: 'Must-Try Dish',
+                guideLabel: 'Vetted Guide',
+                tourLangValue: 'Multilingual Support',
+                restaurantFallbackCuisine: 'Traditional Moroccan',
+                tourFallbackDesc: 'Vetted premium tour experience',
+
+                shieldTitle: 'ScamShield Dashboard',
+                shieldSub: 'Local guidance & safety tools to avoid traps',
+                scam1Title: 'Taxis without Meters',
+                scam1Desc: 'Always demand using the meter or agree on the price beforehand. Fair rate from airport to Medina is between 50-80 MAD.',
+                scam2Title: 'Fake Guides',
+                scam2Desc: 'Avoid locals proposing to guide you in the alleys for free; they will insist on hefty fees later. Ask Sahbi or use Google Maps.',
+                scam3Title: 'Animal Photos (Jemaa el-Fna)',
+                scam3Desc: 'Taking photos with monkeys or snakes costs 100-200 MAD. Confirm the cost first, or they will make a scene.',
+                scam4Title: 'Forced Souvenirs',
+                scam4Desc: 'If a merchant forcefully places something in your hand, drop it immediately. This is an aggressive selling technique.',
+                scam5Title: 'Trusted Spots',
+                scam5Desc: 'Look for restaurants with the "Sahbi Certified" logo. Vetted menus, prices, and high quality are guaranteed.',
+                scam6Title: 'Emergency Contacts',
+                scam6Desc: 'Tourist Police: 19 | Ambulance: 15 | Royal Gendarmerie: 177',
+
+                profileTitle: 'Profile & Fair Prices',
+                profileSub: 'Vetted local prices for reference and settings',
+                settingsTitle: 'Application Settings',
+                settingLanguage: 'Language / اللغة',
+                sosBtn: '🆘 SOS Emergency',
+                pcatTransport: '🚕 Transport',
+                pnameTaxi1: 'Airport → Medina Taxi',
+                psubTaxi1: 'Marrakech Menara Airport',
+                prangeTaxi1: '50–80 MAD',
+                punitTaxi1: 'per ride',
+                pnameTaxi2: 'City Taxi (Petit Taxi)',
+                psubTaxi2: 'Short distance inside city',
+                prangeTaxi2: '10–25 MAD',
+                punitTaxi2: 'meter rate',
+                pnameTaxi3: 'Horse Carriage (Caleche)',
+                psubTaxi3: 'Medina sightseeing ride',
+                prangeTaxi3: '50–100 MAD',
+                punitTaxi3: 'per hour',
+                pcatFood: '🍽️ Food & Drinks',
+                pnameFood1: 'Restaurant Tajine',
+                psubFood1: 'Traditional Moroccan meal',
+                prangeFood1: '50–120 MAD',
+                punitFood1: 'per person',
+                pnameFood2: 'Mint Tea (Atay)',
+                psubFood2: 'Moroccan traditional tea',
+                prangeFood2: '10–25 MAD',
+                punitFood2: 'per pot',
+                pnameFood3: 'Fresh Orange Juice',
+                psubFood3: 'Jemaa el-Fna food stalls',
+                prangeFood3: '4–8 MAD',
+                punitFood3: 'per cup',
+                pcatShopping: '🛍️ Shopping Souks',
+                pnameShop1: 'Leather Babouche (Slippers)',
+                psubShop1: 'Traditional handmade slippers',
+                prangeShop1: '80–200 MAD',
+                punitShop1: 'fair price',
+                pnameShop2: 'Argan Oil (100ml)',
+                psubShop2: 'Cosmetic or culinary type',
+                prangeShop2: '60–120 MAD',
+                punitShop2: 'per bottle',
+                priceTip: '💡 Bargaining Tip: Souk items usually don\'t have price tags. Start negotiating at 40% of the vendor\'s price and agree around 60-70%.'
+            },
+            ar: {
+                dir: 'rtl',
+                logoTitle: 'صاحبي',
+                welcome: 'مرحباً بك في مراكش',
+                heroTitle: 'استكشف كأنك محلي.',
+                heroSubtitle: 'آمن. ذكي. أصيل.',
+                heroWeather: '24° مئوية مشمس',
+                heroCta: 'رؤية خطة اليوم',
+                searchPlaceholder: 'إلى أين تريد الذهاب؟',
+                catExplore: 'استكشف',
+                catGuide: 'المرشد الذكي',
+                catTransport: 'النقل',
+                catStay: 'الإقامة',
+                catEat: 'المطاعم',
+                catSafety: 'الأمان',
+                bannerTitle: "أهلاً! أنا صاحبي الذكي 👋",
+                bannerSub: "اسألني عن أي شيء في مراكش.",
+                bannerBtn: 'دردش مع المساعد',
+                t1: 'مسافرون',
+                t2: 'التقييم',
+                t3: 'خطط رحلات',
+                t4: 'مقدم معتمد',
+                recommendedTitle: 'تجارب سياحية موصى بها',
+                viewAll: 'عرض الكل >',
+                seeAll: 'عرض الكل >',
+                essentialsTitle: 'أساسيات السفر',
+                essCurrency: 'محول العملات',
+                essCurrencySub: '1 دولار = 10.1 درهم',
+                essTrans: 'مترجم الـ AI',
+                essTransSub: 'تحدث الدارجة بسهولة',
+                essEmerg: 'أرقام الطوارئ',
+                essEmergSub: 'الشرطة السياحية المحلية',
+                essMaps: 'خرائط بلا إنترنت',
+                essMapsSub: 'تنقل بالمدينة العتيقة بسهولة',
+                essEsim: 'شريحة eSIM المغرب',
+                essEsimSub: 'تواصل بالإنترنت فوراً',
+                essTransit: 'النقل العام',
+                essTransitSub: 'الحافلات وممرات الكوتشي',
+                memberBadge: 'صاحبي VIP',
+                memberTitle: 'العضوية الممتازة',
+                memberDesc: 'افتح ميزات الخرائط بدون إنترنت وخصومات حجز الجولات المحلية الحقيقية المعتمدة.',
+                mf1: 'خرائط بدون إنترنت',
+                mf2: 'أولوية الـ AI',
+                mf3: 'خصومات الجولات VIP',
+                mf4: 'التأمين على السفر',
+
+                navHome: 'الرئيسية',
+                navMap: 'الأمان',
+                navChat: 'صاحبي',
+                navBookings: 'الحجوزات',
+                navProfile: 'الأسعار',
+
+                chatTitle: 'صاحبي – مرشدك الخاص',
+                chatSub: 'جاهز لمساعدتك في أزقة مراكش',
+                botSender: 'صاحبي 🧞',
+                botWelcome: 'مرحبا صاحبي! 👋<br><br>أنا <strong>صاحبي</strong>، مرشدك الذكي في مراكش. اسألني عن الأماكن، الأسعار المحلية، النقل أو نصائح الأمان... أنا هنا لمساعدتك! 🌟',
+                chatPlaceholder: 'اسأل صاحبي... (مثال: هل 100 درهم سعر عادل للتاكسي؟)',
+
+                bookingsTitle: 'اكتشف واحجز',
+                bookingsSub: 'أفضل الأماكن والصفقات المعتمدة والموثوقة',
+                tabRestaurants: 'مطاعم موثوقة',
+                tabTours: 'جولات سياحية',
+                bookBtn: 'الخريطة واسأل صاحبي',
+                trustBadge: 'معتمد',
+                dishLabel: 'الطبق المميز',
+                guideLabel: 'مرشد مرخص',
+                tourLangValue: 'يتحدث عدة لغات',
+                restaurantFallbackCuisine: 'مغربي تقليدي',
+                tourFallbackDesc: 'جولة ممتازة معتمدة بالمدينة القديمة',
+
+                shieldTitle: 'درع الأمان السياحي',
+                shieldSub: 'إرشادات محلية وأدوات لتجنب الاحتيال في الأسواق',
+                scam1Title: 'تاكسي بدون عداد',
+                scam1Desc: 'اطلب دائماً تشغيل العداد أو اتفق على السعر مسبقاً. السعر العادل من المطار إلى المدينة القديمة بين 50-80 درهم.',
+                scam2Title: 'المرشدون المزيّفون',
+                scam2Desc: 'تجنب الأشخاص الذين يعرضون مرافقتك في الأزقة مجاناً، سيطالبون بمبالغ كبيرة لاحقاً. اسأل صاحبي أو استعن بالخرائط.',
+                scam3Title: 'التصوير مع الأفاعي والقردة',
+                scam3Desc: 'التصوير مع الحيوانات في جامع الفنا يكلف 100-200 درهم. اتفق على السعر أولاً وإلا واجهت مضايقات.',
+                scam4Title: 'الشراء بالإجبار',
+                scam4Desc: 'إذا وضع تاجر بضاعة أو سواراً في يدك رغماً عنك، أرجعه فوراً ولا تمسكه. هذا أسلوب ضغط لإجبارك على الشراء.',
+                scam5Title: 'أماكن معتمدة وآمنة',
+                scam5Desc: 'ابحث عن المحلات والمطاعم التي تحمل شعار "ماهر معتمد". قائمة الأسعار واضحة والجودة مضمونة.',
+                scam6Title: 'أرقام الطوارئ',
+                scam6Desc: 'الشرطة السياحية: 19 | الإسعاف: 15 | الدرك الملكي: 177',
+
+                profileTitle: 'الأسعار والحساب',
+                profileSub: 'الأسعار المحلية العادلة والخيارات العامة',
+                settingsTitle: 'إعدادات التطبيق',
+                settingLanguage: 'اللغة / Language',
+                sosBtn: '🆘 نداء استغاثة SOS',
+                pcatTransport: '🚕 النقل والمواصلات',
+                pnameTaxi1: 'تاكسي المطار ➜ المدينة',
+                psubTaxi1: 'مطار مراكش المنارة الدولي',
+                prangeTaxi1: '50–80 درهم',
+                punitTaxi1: 'للرحلة',
+                pnameTaxi2: 'تاكسي صغير داخل المدينة',
+                psubTaxi2: 'المسافات القصيرة بالنهار',
+                prangeTaxi2: '10–25 درهم',
+                punitTaxi2: 'حسب العداد',
+                pnameTaxi3: 'عربة الخيل (الكوتشي)',
+                psubTaxi3: 'جولة سياحية بأزقة المدينة القديمة',
+                prangeTaxi3: '50–100 درهم',
+                punitTaxi3: 'للساعة',
+                pcatFood: '🍽️ المأكولات والمشروبات',
+                pnameFood1: 'طاجين بالمطعم',
+                psubFood1: 'وجبة مغربية تقليدية متكاملة',
+                prangeFood1: '50–120 درهم',
+                punitFood1: 'للشخص',
+                pnameFood2: 'براد أتاي (شاي بالنعناع)',
+                psubFood2: 'شاي مغربي تقليدي طازج',
+                prangeFood2: '10–25 درهم',
+                punitFood2: 'للبراد',
+                pnameFood3: 'عصير برتقال طازج',
+                psubFood3: 'جلسات عصير جامع الفنا',
+                prangeFood3: '4–8 درهم',
+                punitFood3: 'للكوب',
+                pcatShopping: '🛍️ التسوق في الأسواق القديمة',
+                pnameShop1: 'بلغة جلدية تقليدية',
+                psubShop1: 'بلغة مصنوعة يدوياً من الجلد الطبيعي',
+                prangeShop1: '80–200 درهم',
+                punitShop1: 'السعر العادل',
+                pnameShop2: 'زيت أركان التجميلي (100 مل)',
+                psubShop2: 'زيت طبيعي مستخلص محلياً',
+                prangeShop2: '60–120 درهم',
+                punitShop2: 'للقنينة',
+                priceTip: '💡 نصيحة المساومة: السلع في الأسواق لا تحمل بطاقات أسعار. ابدأ المفاوضة بـ 40٪ من السعر المقترح من البائع واتفق على 60-70٪.'
+            }
+        };
+
+        function updateUIStrings() {
+            const dict = i18n[activeLang];
+            document.documentElement.dir = dict.dir;
+            document.documentElement.lang = activeLang;
+
+            // Logo & Hero text
+            document.getElementById('txt-logo-title').innerText = dict.logoTitle;
+            document.getElementById('txt-hero-welcome').innerText = dict.welcome;
+            document.getElementById('txt-hero-title').innerText = dict.heroTitle;
+            document.getElementById('txt-hero-subtitle').innerText = dict.heroSubtitle;
+            document.getElementById('txt-hero-weather').innerText = dict.heroWeather;
+            document.getElementById('txt-hero-cta').innerText = dict.heroCta;
+            document.getElementById('homeSearchInput').placeholder = dict.searchPlaceholder;
+
+            // Categories
+            document.getElementById('txt-cat-explore').innerText = dict.catExplore;
+            document.getElementById('txt-cat-guide').innerText = dict.catGuide;
+            document.getElementById('txt-cat-transport').innerText = dict.catTransport;
+            document.getElementById('txt-cat-stay').innerText = dict.catStay;
+            document.getElementById('txt-cat-eat').innerText = dict.catEat;
+            document.getElementById('txt-cat-safety').innerText = dict.catSafety;
+
+            // AI Banner
+            document.getElementById('txt-banner-title').innerText = dict.bannerTitle;
+            document.getElementById('txt-banner-sub').innerText = dict.bannerSub;
+            document.getElementById('txt-banner-btn').innerText = dict.bannerBtn;
+
+            // Trust Indicators
+            document.getElementById('txt-t1').innerText = dict.t1;
+            document.getElementById('txt-t2').innerText = dict.t2;
+            document.getElementById('txt-t3').innerText = dict.t3;
+            document.getElementById('txt-t4').innerText = dict.t4;
+
+            // Recommended Title & Cards
+            document.getElementById('txt-recommended-title').innerText = dict.recommendedTitle;
+            document.getElementById('txt-view-all-1').innerText = dict.viewAll;
+            document.getElementById('txt-view-all-2').innerText = dict.seeAll;
+            document.getElementById('txt-badge-h1').innerText = dict.trustBadge;
+            document.getElementById('txt-badge-h2').innerText = dict.trustBadge;
+            document.getElementById('txt-badge-h3').innerText = 'Exclusive';
+            document.getElementById('txt-badge-h4').innerText = 'Adventure';
+            
+            document.getElementById('txt-desc-h1').innerText = dict.txtCardDesc1 = 'Experience the magic';
+            document.getElementById('txt-desc-h2').innerText = 'A peaceful escape';
+            document.getElementById('txt-desc-h3').innerText = 'See it from the sky';
+            document.getElementById('txt-desc-h4').innerText = 'Sunset & desert dinner';
+
+            document.getElementById('txt-price-h1').innerText = activeLang === 'ar' ? 'دخول مجاني' : 'Free Entry';
+            document.getElementById('txt-time-h1').innerText = activeLang === 'ar' ? 'مفتوح دائماً' : 'Open 24h';
+
+            // Essentials
+            document.getElementById('txt-essentials-title').innerText = dict.essentialsTitle;
+            document.getElementById('txt-ess-currency').innerText = dict.essCurrency;
+            document.getElementById('txt-ess-currency-sub').innerText = dict.essCurrencySub;
+            document.getElementById('txt-ess-trans').innerText = dict.essTrans;
+            document.getElementById('txt-ess-trans-sub').innerText = dict.essTransSub;
+            document.getElementById('txt-ess-emerg').innerText = dict.essEmerg;
+            document.getElementById('txt-ess-emerg-sub').innerText = dict.essEmergSub;
+            document.getElementById('txt-ess-maps').innerText = dict.essMaps;
+            document.getElementById('txt-ess-maps-sub').innerText = dict.essMapsSub;
+            document.getElementById('txt-ess-esim').innerText = dict.essEsim;
+            document.getElementById('txt-ess-esim-sub').innerText = dict.essEsimSub;
+            document.getElementById('txt-ess-transit').innerText = dict.essTransit;
+            document.getElementById('txt-ess-transit-sub').innerText = dict.essTransitSub;
+
+            // Membership card
+            document.getElementById('txt-member-badge').innerText = dict.memberBadge;
+            document.getElementById('txt-member-title').innerText = dict.memberTitle;
+            document.getElementById('txt-member-desc').innerText = dict.memberDesc;
+            document.getElementById('txt-mf1').innerText = dict.mf1;
+            document.getElementById('txt-mf2').innerText = dict.mf2;
+            document.getElementById('txt-mf3').innerText = dict.mf3;
+            document.getElementById('txt-mf4').innerText = dict.mf4;
+
+            // Bottom Navigation
+            document.getElementById('txt-nav-home').innerText = dict.navHome;
+            document.getElementById('txt-nav-map').innerText = dict.navMap;
+            document.getElementById('txt-nav-chat').innerText = dict.navChat;
+            document.getElementById('txt-nav-bookings').innerText = dict.navBookings;
+            document.getElementById('txt-nav-profile').innerText = dict.navProfile;
+
+            // Chat Screen
+            document.getElementById('txt-chat-header-title').innerText = dict.chatTitle;
+            document.getElementById('txt-chat-header-sub').innerText = dict.chatSub;
+            document.getElementById('txt-bot-sender').innerText = dict.botSender;
+            document.getElementById('txt-bot-welcome-msg').innerHTML = dict.botWelcome;
+            document.getElementById('chatInput').placeholder = dict.chatPlaceholder;
+
+            // Bookings Screen
+            document.getElementById('txt-bookings-title').innerText = dict.bookingsTitle;
+            document.getElementById('txt-bookings-sub').innerText = dict.bookingsSub;
+            document.getElementById('sub-tab-restaurants').innerText = dict.tabRestaurants;
+            document.getElementById('sub-tab-tours').innerText = dict.tabTours;
+
+            // Scam Screen
+            document.getElementById('txt-shield-title').innerText = dict.shieldTitle;
+            document.getElementById('txt-shield-sub').innerText = dict.shieldSub;
+            document.getElementById('txt-scam-1-title').innerText = dict.scam1Title;
+            document.getElementById('txt-scam-1-desc').innerText = dict.scam1Desc;
+            document.getElementById('txt-scam-2-title').innerText = dict.scam2Title;
+            document.getElementById('txt-scam-2-desc').innerText = dict.scam2Desc;
+            document.getElementById('txt-scam-3-title').innerText = dict.scam3Title;
+            document.getElementById('txt-scam-3-desc').innerText = dict.scam3Desc;
+            document.getElementById('txt-scam-4-title').innerText = dict.scam4Title;
+            document.getElementById('txt-scam-4-desc').innerText = dict.scam4Desc;
+            document.getElementById('txt-scam-5-title').innerText = dict.scam5Title;
+            document.getElementById('txt-scam-5-desc').innerText = dict.scam5Desc;
+            document.getElementById('txt-scam-6-title').innerText = dict.scam6Title;
+            document.getElementById('txt-scam-6-desc').innerText = dict.scam6Desc;
+
+            // Profile Screen
+            document.getElementById('txt-profile-title').innerText = dict.profileTitle;
+            document.getElementById('txt-profile-sub').innerText = dict.profileSub;
+            document.getElementById('txt-set-title').innerText = dict.settingsTitle;
+            document.getElementById('txt-set-lang').innerText = dict.settingLanguage;
+            document.getElementById('txt-sos-btn').innerText = dict.sosBtn;
+
+            document.getElementById('txt-pcat-transport').innerText = dict.pcatTransport;
+            document.getElementById('txt-pname-taxi-1').innerText = dict.pnameTaxi1;
+            document.getElementById('txt-psub-taxi-1').innerText = dict.psubTaxi1;
+            document.getElementById('txt-prange-taxi-1').innerText = dict.prangeTaxi1;
+            document.getElementById('txt-punit-taxi-1').innerText = dict.punitTaxi1;
+            
+            document.getElementById('txt-pname-taxi-2').innerText = dict.pnameTaxi2;
+            document.getElementById('txt-psub-taxi-2').innerText = dict.psubTaxi2;
+            document.getElementById('txt-prange-taxi-2').innerText = dict.prangeTaxi2;
+            document.getElementById('txt-punit-taxi-2').innerText = dict.punitTaxi2;
+
+            document.getElementById('txt-pname-taxi-3').innerText = dict.pnameTaxi3;
+            document.getElementById('txt-psub-taxi-3').innerText = dict.psubTaxi3;
+            document.getElementById('txt-prange-taxi-3').innerText = dict.prangeTaxi3;
+            document.getElementById('txt-punit-taxi-3').innerText = dict.punitTaxi3;
+
+            document.getElementById('txt-pcat-food').innerText = dict.pcatFood;
+            document.getElementById('txt-pname-food-1').innerText = dict.pnameFood1;
+            document.getElementById('txt-psub-food-1').innerText = dict.psubFood1;
+            document.getElementById('txt-prange-food-1').innerText = dict.prangeFood1;
+            document.getElementById('txt-punit-food-1').innerText = dict.punitFood1;
+
+            document.getElementById('txt-pname-food-2').innerText = dict.pnameFood2;
+            document.getElementById('txt-psub-food-2').innerText = dict.psubFood2;
+            document.getElementById('txt-prange-food-2').innerText = dict.prangeFood2;
+            document.getElementById('txt-punit-food-2').innerText = dict.punitFood2;
+
+            document.getElementById('txt-pname-food-3').innerText = dict.pnameFood3;
+            document.getElementById('txt-psub-food-3').innerText = dict.psubFood3;
+            document.getElementById('txt-prange-food-3').innerText = dict.prangeFood3;
+            document.getElementById('txt-punit-food-3').innerText = dict.punitFood3;
+
+            document.getElementById('txt-pcat-shopping').innerText = dict.pcatShopping;
+            document.getElementById('txt-pname-shop-1').innerText = dict.pnameShop1;
+            document.getElementById('txt-psub-shop-1').innerText = dict.psubShop1;
+            document.getElementById('txt-prange-shop-1').innerText = dict.prangeShop1;
+            document.getElementById('txt-punit-shop-1').innerText = dict.punitShop1;
+
+            document.getElementById('txt-pname-shop-2').innerText = dict.pnameShop2;
+            document.getElementById('txt-psub-shop-2').innerText = dict.psubShop2;
+            document.getElementById('txt-prange-shop-2').innerText = dict.prangeShop2;
+            document.getElementById('txt-punit-shop-2').innerText = dict.punitShop2;
+            document.getElementById('txt-price-tip').innerText = dict.priceTip;
+
+            document.getElementById('langSelect').value = activeLang;
+
+            if (document.getElementById('restaurantList').dataset.loaded) {
+                renderRestaurantsHTML();
+            }
+            if (document.getElementById('tourList').dataset.loaded) {
+                renderToursHTML();
+            }
+        }
+
+        function toggleLanguage() {
+            activeLang = activeLang === 'en' ? 'ar' : 'en';
+            updateUIStrings();
+        }
+
+        function changeLanguageSelect(select) {
+            activeLang = select.value;
+            updateUIStrings();
+        }
+
+        // ===== SCREEN NAVIGATION =====
+        function showScreen(name, subTabName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+
+            const screen = document.getElementById('screen-' + name);
+            if (screen) screen.classList.add('active');
+
+            const navBtn = document.getElementById('nav-' + name);
+            if (navBtn) navBtn.classList.add('active');
+
+            if (name === 'bookings') {
+                loadRestaurants();
+                loadTours();
+                if (subTabName) {
+                    switchBookingsTab(subTabName);
+                }
+            }
+        }
+
+        function switchBookingsTab(tabName) {
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('sub-tab-' + tabName).classList.add('active');
+
+            if (tabName === 'restaurants') {
+                document.getElementById('restaurantList').style.display = 'flex';
+                document.getElementById('tourList').style.display = 'none';
+            } else {
+                document.getElementById('restaurantList').style.display = 'none';
+                document.getElementById('tourList').style.display = 'flex';
+            }
+        }
+
+        // ===== DATA STORAGE =====
+        let restaurantsData = [];
+        let toursData = [];
+
+        // ===== LOAD RESTAURANTS =====
+        async function loadRestaurants() {
+            const list = document.getElementById('restaurantList');
+            if (list.dataset.loaded) return;
+            try {
+                const res = await fetch(`${API_BASE}/restaurants/`);
+                if (!res.ok) throw new Error('Server error');
+                restaurantsData = await res.json();
+            } catch (e) {
+                restaurantsData = getStaticRestaurantsData();
+            }
+            list.dataset.loaded = 'true';
+            renderRestaurantsHTML();
+        }
+
+        function renderRestaurantsHTML() {
+            const list = document.getElementById('restaurantList');
+            const dict = i18n[activeLang];
+            if (restaurantsData.length === 0) {
+                list.innerHTML = `<p style="padding:20px;color:var(--text-muted);text-align:center;">No restaurants available</p>`;
+                return;
+            }
+            list.innerHTML = restaurantsData.map(r => {
+                const cuisine = r.cuisine_type || dict.restaurantFallbackCuisine;
+                const desc = r.description || `${cuisine} certified cuisine`;
+                const dish = r.must_try_dish || 'Tajine';
+                return `
+                <div class="royal-card">
+                    <div class="card-image" style="background-image: url('${r.image_url || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600'}')">
+                        <span class="card-tag">✅ ${dict.trustBadge}</span>
+                        <span class="card-rating-badge">⭐ ${r.rating || '4.5'}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-name">${r.name}</div>
+                        <div class="card-meta">${cuisine} — ${desc}</div>
+                        <div class="highlight-box">
+                            <span class="highlight-icon">🍽️</span>
+                            <div>
+                                <div class="highlight-label">${dict.dishLabel}</div>
+                                <div class="highlight-value">${dish}</div>
+                            </div>
+                        </div>
+                        <button class="book-btn" onclick="askAbout('${activeLang === 'ar' ? 'أين يقع مطعم ' + r.name + ' وكيف أصل إليه؟' : 'Where is ' + r.name + ' restaurant located and how do I get there?'}')">
+                            🗺️ ${dict.bookBtn}
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function getStaticRestaurantsData() {
+            return [
+                { name: 'Le Jardin', cuisine_type: 'مغربي-معاصر / Modern Moroccan', description: 'مطعم راقٍ في قلب المدينة القديمة / Elegant riad restaurant', must_try_dish: 'البسطيلة بالحمام / Pigeon Pastilla', image_url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600', rating: 4.7 },
+                { name: 'Riad Yemma', cuisine_type: 'مغربي أصيل / Authentic Moroccan', description: 'طعام منزلي أصيل بيد ربات البيوت / Homemade local recipes', must_try_dish: 'الكسكس السبعة خضر / 7-Vegetable Couscous', image_url: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600', rating: 4.8 },
+                { name: 'Nomad', cuisine_type: 'مغربي-حديث / Modern Fusion', description: 'إطلالة رائعة على أسواق المدينة / Rooftop sunset view over Souks', must_try_dish: 'ملحون الدجاج / Chicken Melhoun', image_url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600', rating: 4.6 }
+            ];
+        }
+
+        // ===== LOAD TOURS =====
+        async function loadTours() {
+            const list = document.getElementById('tourList');
+            if (list.dataset.loaded) return;
+            try {
+                const res = await fetch(`${API_BASE}/tours/`);
+                if (!res.ok) throw new Error('Server error');
+                toursData = await res.json();
+            } catch (e) {
+                toursData = getStaticToursData();
+            }
+            list.dataset.loaded = 'true';
+            renderToursHTML();
+        }
+
+        function renderToursHTML() {
+            const list = document.getElementById('tourList');
+            const dict = i18n[activeLang];
+            if (toursData.length === 0) {
+                list.innerHTML = `<p style="padding:20px;color:var(--text-muted);text-align:center;">No tours available</p>`;
+                return;
+            }
+            list.innerHTML = toursData.map(t => {
+                const desc = t.description || dict.tourFallbackDesc;
+                const hoursLabel = activeLang === 'ar' ? 'ساعات' : 'hours';
+                return `
+                <div class="royal-card">
+                    <div class="card-image" style="background-image: url('${t.image_url || 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=600&q=80'}')">
+                        ${t.is_premium || true ? `<span class="card-tag">✨ ${dict.trustBadge}</span>` : ''}
+                    </div>
+                    <div class="card-body">
+                        <div class="card-name">${t.title}</div>
+                        <div class="card-price-row">
+                            <span class="card-price">${t.price || '250'} ${t.currency || 'MAD'}</span>
+                            <span class="card-duration">⏱ ${t.duration_hours || t.duration || '3'} ${hoursLabel}</span>
+                        </div>
+                        <div class="card-meta">${desc}</div>
+                        <div class="highlight-box">
+                            <span class="highlight-icon">🧞</span>
+                            <div>
+                                <div class="highlight-label">${dict.guideLabel}</div>
+                                <div class="highlight-value">${dict.tourLangValue}</div>
+                            </div>
+                        </div>
+                        <button class="book-btn" onclick="askAbout('${activeLang === 'ar' ? 'أريد تفاصيل وحجز جولة ' + t.title : 'I want details and booking for ' + t.title + ' tour'}')">
+                            📋 ${dict.bookBtn}
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function getStaticToursData() {
+            return [
+                { title: 'أسرار المدينة القديمة / Medina Secrets', price: '250', duration_hours: 3, image_url: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=600&q=80', description: 'جولة سرية في أزقة المدينة العتيقة مع مرشد محلي / Secret paths and hidden souks guide' },
+                { title: 'جولة الطعام والتوابل / Souk Food Tour', price: '350', duration_hours: 4, image_url: 'https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=600', description: 'اكتشف أسواق البهارات والطعام التقليدي / Taste traditional local dishes in Medina markets' },
+                { title: 'رحلة الأطلس اليومية / Atlas Mountains Daytrip', price: '600', duration_hours: 8, image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600', description: 'يوم كامل في جبال الأطلس الكبير مع غداء بربري / High Atlas valleys excursion with Berber lunch' }
+            ];
+        }
+
+        // ===== CHAT CLIENT =====
+        function quickAsk(text) {
+            document.getElementById('chatInput').value = text;
+            showScreen('chat');
+            setTimeout(sendMessage, 100);
+        }
+
+        function askAbout(text) {
+            document.getElementById('chatInput').value = text;
+            showScreen('chat');
+            setTimeout(sendMessage, 100);
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function handleSearchKey(e) {
+            if (e.key === 'Enter') {
+                const text = e.target.value.trim();
+                if (text) {
+                    e.target.value = '';
+                    quickAsk(text);
+                }
+            }
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+        }
+
+        function handleImageSelect(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    imgBase64 = e.target.result;
+                    document.getElementById('previewImage').src = imgBase64;
+                    document.getElementById('imgPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removeImage() {
+            imgBase64 = null;
+            document.getElementById('imgPreview').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const messages = document.getElementById('chatMessages');
+            const text = input.value.trim();
+
+            if ((!text && !imgBase64) || sendBtn.disabled) return;
+
+            document.getElementById('quickSuggestions').style.display = 'none';
+            const welcomeChips = document.getElementById('welcomeActionChips');
+            if (welcomeChips) welcomeChips.style.display = 'none';
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'msg user';
+            let userContent = '';
+            if (imgBase64) {
+                userContent += `<img src="${imgBase64}" style="max-width:100%; border-radius:12px; margin-bottom:8px; display:block"><br>`;
+            }
+            userContent += `<span dir="auto">${text || (activeLang === 'ar' ? 'صورة مرفقة' : 'Image attached')}</span>`;
+            userDiv.innerHTML = `<span class="msg-sender">${activeLang === 'ar' ? 'أنت' : 'You'}</span><div class="msg-bubble" dir="auto">${userContent}</div>`;
+            messages.appendChild(userDiv);
+
+            const sentText = text;
+            const sentImg = imgBase64;
+            input.value = '';
+            input.style.height = 'auto';
+            removeImage();
+            sendBtn.disabled = true;
+
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'msg bot';
+            typingDiv.id = 'typing';
+            typingDiv.innerHTML = `
+                <span class="msg-sender">${i18n[activeLang].botSender}</span>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>`;
+            messages.appendChild(typingDiv);
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const res = await fetch(`${API_BASE}/chat/message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: sentText || 'See this image',
+                        image_url: sentImg,
+                        language: activeLang
+                    })
+                });
+
+                const typing = document.getElementById('typing');
+                if (typing) typing.remove();
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    addBotMessage(`⚠️ Error: ${err.detail || res.status}`, []);
+                    return;
+                }
+
+                const data = await res.json();
+
+                let html = (data.response || 'No response')
+                    .replace(/\[STORY\]([\s\S]*?)(\n|$)/g, '<div class="story-block">$1</div>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+
+                const botDiv = document.createElement('div');
+                botDiv.className = 'msg bot';
+                let fullContent = `<div class="msg-bubble" dir="auto">${html}</div>`;
+
+                if (data.results_cards && data.results_cards.length > 0) {
+                    let cardsHtml = '<div class="result-cards-row">';
+                    data.results_cards.forEach(card => {
+                        cardsHtml += `
+                            <div class="result-card" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(card.name + ' Marrakech')}', '_blank')">
+                                <img src="${card.image || 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=300&q=80'}" alt="${card.name}" onerror="this.src='https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=300&q=80'">
+                                <div class="result-card-body">
+                                    <div class="result-card-name">${card.name}</div>
+                                    <div class="result-card-price">${card.price_level || ''} ${card.distance || ''}</div>
+                                </div>
+                            </div>`;
+                    });
+                    cardsHtml += '</div>';
+                    fullContent += cardsHtml;
+                }
+
+                if (data.suggested_actions && data.suggested_actions.length > 0) {
+                    let chipsHtml = '<div class="action-chips">';
+                    data.suggested_actions.forEach(action => {
+                        chipsHtml += `<button class="chip" onclick="quickAsk('${action.replace(/'/g, '')}')">${action}</button>`;
+                    });
+                    chipsHtml += '</div>';
+                    fullContent += chipsHtml;
+                }
+
+                botDiv.innerHTML = `<span class="msg-sender">${i18n[activeLang].botSender}</span>${fullContent}`;
+                messages.appendChild(botDiv);
+
+            } catch (e) {
+                const typing = document.getElementById('typing');
+                if (typing) typing.remove();
+                addBotMessage(activeLang === 'ar' ? '❌ تعذر الاتصال بالخادم. الرجاء تشغيل الـ backend.' : '❌ Failed to connect to server. Make sure backend is running.', []);
+            }
+
+            sendBtn.disabled = false;
+            messages.scrollTop = messages.scrollHeight;
+            input.focus();
+        }
+
+        function addBotMessage(text, chips) {
+            const messages = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'msg bot';
+            let html = `<span class="msg-sender">${i18n[activeLang].botSender}</span><div class="msg-bubble" dir="auto">${text}</div>`;
+            if (chips && chips.length > 0) {
+                html += '<div class="action-chips">' + chips.map(c => `<button class="chip" onclick="quickAsk('${c}')">${c}</button>`).join('') + '</div>';
+            }
+            div.innerHTML = html;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // ===== PANIC SOS =====
+        function panicSOS() {
+            const dict = i18n[activeLang];
+            const msg = activeLang === 'ar' 
+                ? '⚠️ هل تحتاج مساعدة طارئة؟\n\nسيتم عرض أرقام الطوارئ.\n\nالشرطة: 19 | الإسعاف: 15 | الدرك: 177'
+                : '⚠️ Do you need emergency assistance?\n\nThis will print emergency contact details.\n\nPolice: 19 | Ambulance: 15 | Gendarmerie: 177';
+            
+            const confirmed = confirm(msg);
+            if (confirmed) {
+                const info = activeLang === 'ar'
+                    ? `🆘 أرقام الطوارئ في المغرب:\n\n🚔 الشرطة السياحية: <strong>19</strong>\n🚑 الإسعاف: <strong>15</strong>\n🏍️ الدرك الملكي: <strong>177</strong>\n\nبق في مكان آمن ومضاء وانتظر المساعدة. سأكون معك! 💪`
+                    : `🆘 Emergency Contacts in Morocco:\n\n🚔 Tourist Police: <strong>19</strong>\n🚑 Ambulance: <strong>15</strong>\n🏍️ Royal Gendarmerie: <strong>177</strong>\n\nStay in a safe, lit area and wait for help. I am here for you! 💪`;
+                addBotMessage(info, []);
+                showScreen('chat');
+            }
+        }
+
+        // ===== MISC INTERACTIONS =====
+        function toggleMenu() {
+            const menuLabel = activeLang === 'ar' ? 'صاحبي مراكش – مرشد السفر الفاخر' : 'Sahbi Marrakech – Premium Travel Guide';
+            alert(`ℹ️ ${menuLabel}\nVersion 3.0.0 (Apple Luxury Edition)\nMoroccan Sovereign Local Intelligence.`);
+        }
+
+        function triggerNotification() {
+            const notifyMsg = activeLang === 'ar'
+                ? '🔔 لا توجد إشعارات جديدة حالياً. استمتع بيومك في مراكش!'
+                : '🔔 No new notifications. Enjoy your day in Marrakech!';
+            alert(notifyMsg);
+        }
+
+        function toggleSearchFilter() {
+            const filterMsg = activeLang === 'ar'
+                ? '🎛️ تم تحديث فلاتر البحث حسب موقعك الحالي في المدينة.'
+                : '🎛️ Search filters updated automatically based on your location.';
+            alert(filterMsg);
+        }
+
+        // Initialize UI strings
+        updateUIStrings();
+
+        // ===== PWA SERVICE WORKER =====
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/pwa/sw.js').catch(() => {});
+        }
+    </script>
+</body>
+
+</html>

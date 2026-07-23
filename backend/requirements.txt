@@ -1,0 +1,26 @@
+fastapi
+uvicorn
+pydantic
+pydantic[email]
+python-dotenv
+python-multipart
+# Auth & Security
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
+# AI & Database
+langchain
+langchain-openai
+langchain-community
+duckduckgo-search
+pinecone-client
+sqlalchemy
+psycopg2-binary
+GeoAlchemy2
+# QR Code
+qrcode[pil]
+Pillow
+# Production
+# gunicorn removed for Windows compatibility
+httpx
+langchain-google-genai

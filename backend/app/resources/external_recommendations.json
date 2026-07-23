@@ -1,0 +1,124 @@
+{
+  "Medina": {
+    "riads": [
+      {
+        "name": "La Sultana Marrakech",
+        "rating": 9.5,
+        "price_level": "$$$$",
+        "safety": "High (Secured area, professional security)",
+        "distance": "500m from Koutoubia",
+        "quality": "Exceptional (Spa, pool, Moorish architecture)",
+        "source": "Booking.com"
+      },
+      {
+        "name": "Riad Palais Sebban",
+        "rating": 9.1,
+        "price_level": "$$$",
+        "safety": "High (Well-lit path near main square)",
+        "distance": "300m from Jemaa El-Fnaa",
+        "quality": "Very Good (Restored 19th-century palace)",
+        "source": "TripAdvisor"
+      },
+      {
+        "name": "Riad Azzar",
+        "rating": 9.6,
+        "price_level": "$$",
+        "safety": "Medium-High (Quiet Medina alley, escort available)",
+        "distance": "800m from Museum",
+        "quality": "Excellent (Personal service, clean, peaceful)",
+        "source": "Booking.com"
+      }
+    ],
+    "restaurants": [
+      {
+        "name": "Le Trou Au Mur",
+        "rating": 4.8,
+        "price_level": "$$$",
+        "safety": "High (Reputable staff, safe entry)",
+        "distance": "600m from Souk Cherifia",
+        "quality": "Modern Moroccan (Rooftop, cozy)",
+        "source": "TripAdvisor"
+      },
+      {
+        "name": "Terrasse des Epices",
+        "rating": 4.5,
+        "price_level": "$$$",
+        "safety": "High (Well-known spot, central souks)",
+        "distance": "Central Souks",
+        "quality": "Great view, relaxed atmosphere",
+        "source": "TripAdvisor"
+      },
+      {
+        "name": "Nomad",
+        "rating": 4.6,
+        "price_level": "$$$",
+        "safety": "High (Popular with tourists, visible location)",
+        "distance": "Near Rahba Kedima",
+        "quality": "Modern Moroccan Fusion, iconic rooftop",
+        "source": "TripAdvisor"
+      }
+    ]
+  },
+  "Gueliz": {
+    "restaurants": [
+      {
+        "name": "Amal Women's Center",
+        "rating": 4.9,
+        "price_level": "$",
+        "safety": "High (Social enterprise, very welcoming)",
+        "distance": "Gueliz Center",
+        "quality": "Best Traditional Couscous (Social mission)",
+        "source": "TripAdvisor"
+      },
+      {
+        "name": "Al Fassia",
+        "rating": 4.7,
+        "price_level": "$$$",
+        "safety": "High (Established reputation, quiet street)",
+        "distance": "Boulevard Zerktouni",
+        "quality": "Refined Moroccan (Female managed, famous lamb)",
+        "source": "TripAdvisor"
+      },
+      {
+        "name": "Grand Café de la Poste",
+        "rating": 4.4,
+        "price_level": "$$$",
+        "safety": "High (Classic brasserie, secure entrance)",
+        "distance": "Place du 16 Novembre",
+        "quality": "French-Moroccan Chic (Indochine vibe)",
+        "source": "TripAdvisor/Booking"
+      }
+    ]
+  },
+  "Hivernage": {
+    "restaurants": [
+      {
+        "name": "Comptoir Darna",
+        "rating": 4.5,
+        "price_level": "$$$$",
+        "safety": "High (Luxury district, valet, security)",
+        "distance": "Avenue Echouhada",
+        "quality": "Festive (Belly dancing shows, luxury food)",
+        "source": "TripAdvisor"
+      },
+      {
+        "name": "L'mida",
+        "rating": 4.7,
+        "price_level": "$$$",
+        "safety": "High (Popular lounge vibe)",
+        "distance": "Near Casino de Marrakech",
+        "quality": "Trendy Fusion (Modern Marrakech)",
+        "source": "TripAdvisor"
+      },
+      {
+        "name": "Patron de la Mer",
+        "rating": 4.6,
+        "price_level": "$$$",
+        "safety": "High (Fashionable area)",
+        "distance": "Avenue Mohammed VI",
+        "quality": "Premium Seafood (Paella, grilled fish)",
+        "source": "TripAdvisor"
+      }
+    ]
+  }
+}

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدث مع ماهر | Mahir AI</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .recording-pulse {
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .ai-bubble {
+            background: #1e293b;
+            border-radius: 20px 20px 4px 20px;
+        }
+
+        .user-bubble {
+            background: #f59e0b;
+            color: black;
+            border-radius: 20px 20px 20px 4px;
+        }
+
+        .typing-dot {
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up {
+            animation: fade-up 0.3s ease-out forwards;
+        }
+
+        /* Markdown rendering styles */
+        .markdown-body p { margin-bottom: 0.5rem; }
+        .markdown-body strong { color: #fbbf24; }
+        .markdown-body ul { list-style-type: disc; margin-right: 1.5rem; margin-bottom: 0.5rem; }
+        .markdown-body li { margin-bottom: 0.25rem; }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 { font-weight: bold; color: #fbbf24; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Header -->
+    <div class="absolute top-6 w-full flex justify-between px-6 z-10 max-w-lg">
+        <a href="/static/admin.html" class="text-white/60 hover:text-amber-500 transition"><i
+                class="fa-solid fa-arrow-right"></i> لوحة التحكم</a>
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            <span class="text-xs font-bold tracking-widest text-amber-500">MAHIR AI V1.0</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="w-full max-w-lg flex flex-col h-full max-h-[85vh] relative z-0">
+
+        <!-- Visualization Area (Avatar) -->
+        <div class="flex-1 flex flex-col items-center justify-center transition-all duration-500" id="avatar-container">
+            <div class="relative w-40 h-40 mb-6 group cursor-pointer" onclick="toggleListening()">
+                <div
+                    class="absolute inset-0 bg-amber-500 rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity">
+                </div>
+                <div id="mic-btn-visual"
+                    class="relative w-full h-full bg-gradient-to-br from-gray-800 to-black rounded-full border-4 border-amber-500/30 flex items-center justify-center shadow-2xl transition-transform active:scale-95">
+                    <i id="mic-icon" class="fa-solid fa-microphone text-5xl text-amber-500 transition-colors"></i>
+                </div>
+                <!-- Status Badge -->
+                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 px-4 py-1 rounded-full text-xs font-bold shadow-lg whitespace-nowrap"
+                    id="status-text">
+                    اضغط لتتحدث
+                </div>
+            </div>
+
+            <!-- Chat List (Hidden initially, scrollable) -->
+            <div id="chat-list" class="w-full flex-1 overflow-y-auto hidden space-y-4 px-2 pb-4 scroll-smooth">
+                <!-- Messages will appear here -->
+            </div>
+        </div>
+
+        <!-- Hint Text / Empty State -->
+        <div id="intro-text" class="text-center mb-10 transition-opacity">
+            <h1 class="text-2xl font-bold mb-2">أهلاً بك في مراكش 🇲🇦</h1>
+            <p class="text-gray-400 text-sm">أنا مرشدك الذكي "ماهر". جرب أن تسألني:</p>
+            <div class="flex flex-wrap justify-center gap-2 mt-4 opacity-80">
+                <span class="bg-white/10 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-white/20"
+                    onclick="sendText('كم ثمن التاكسي لساحة الفنا؟')">💰 كم ثمن التاكسي؟</span>
+                <span class="bg-white/10 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-white/20"
+                    onclick="sendText('أين أجد أفضل طاجين؟')">🥘 أفضل طاجين</span>
+                <span class="bg-white/10 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-white/20"
+                    onclick="sendText('ما هي الأماكن القريبة؟')">📍 الأماكن القريبة</span>
+            </div>
+        </div>
+
+        <!-- Quick Actions Bar -->
+        <div id="quick-actions" class="w-full flex gap-2 overflow-x-auto pb-2 scrollbar-hide px-2 opacity-0 transition-opacity duration-500 hidden">
+            <button onclick="sendText('كم ثمن التاكسي من مكاني الحالي؟')" class="shrink-0 bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full flex items-center gap-2 transition-colors border border-white/5">
+                <i class="fa-solid fa-taxi text-yellow-400"></i> تسعيرة التاكسي
+            </button>
+            <button onclick="sendText('ابحث عن طريق آمن للعودة')" class="shrink-0 bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full flex items-center gap-2 transition-colors border border-white/5">
+                <i class="fa-solid fa-shield-halved text-green-400"></i> للعودة بسلام
+            </button>
+            <button onclick="sendText('ما هي الأسعار العادلة للسلع؟')" class="shrink-0 bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full flex items-center gap-2 transition-colors border border-white/5">
+                <i class="fa-solid fa-scale-balanced text-blue-400"></i> الأسعار العادلة
+            </button>
+            <button onclick="sendText('أين أقرب مكان معتمد وموثوق؟')" class="shrink-0 bg-white/10 hover:bg-white/20 text-xs px-4 py-2 rounded-full flex items-center gap-2 transition-colors border border-white/5">
+                <i class="fa-solid fa-location-dot text-red-400"></i> أماكن معتمدة
+            </button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="glass-panel p-2 rounded-full flex items-center gap-2 mt-2">
+            <button onclick="toggleListening()" id="mic-btn-small"
+                class="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center hover:bg-amber-500 text-white transition-colors flex-shrink-0">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
+            <input type="text" id="text-input" placeholder="اكتب سؤالك هنا..."
+                class="flex-1 bg-transparent border-none outline-none text-right px-4 placeholder-gray-500 font-medium"
+                onkeypress="if(event.key==='Enter') sendText(this.value)">
+            <button onclick="sendText(document.getElementById('text-input').value)"
+                class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-paper-plane transform rotate-180"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- LOGIC -->
+    <script>
+        // PWA Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js').then(registration => {
+                    console.log('SW registered:', registration);
+                }).catch(err => console.log('SW registration failed:', err));
+            });
+        }
+
+        // Geolocation Data
+        let currentLat = null;
+        let currentLon = null;
+
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                pos => { currentLat = pos.coords.latitude; currentLon = pos.coords.longitude; },
+                err => console.warn("Geolocation warning:", err)
+            );
+        }
+
+        // Web Speech API Support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechSynthesis = window.speechSynthesis;
+        let recognition = SpeechRecognition ? new SpeechRecognition() : null;
+        let isListening = false;
+
+        if (recognition) {
+            recognition.lang = 'ar-MA'; // Moroccan dialect if supported, or generic Arabic
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                isListening = true;
+                updateUIState('listening');
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                updateUIState('idle');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('text-input').value = transcript;
+                sendText(transcript);
+            };
+        } else {
+            console.warn("Speech API not supported in this browser.");
+            document.getElementById('status-text').textContent = "الصوت غير مدعوم";
+        }
+
+        function toggleListening() {
+            if (!recognition) return alert("المتصفح لا يدعم الأوامر الصوتية");
+            if (isListening) recognition.stop();
+            else recognition.start();
+        }
+
+        async function sendText(text) {
+            if (!text.trim()) return;
+
+            // UI Update
+            document.getElementById('text-input').value = '';
+            document.getElementById('intro-text').style.display = 'none';
+            const chatList = document.getElementById('chat-list');
+            document.getElementById('avatar-container').classList.remove('flex-1', 'items-center', 'justify-center');
+            document.getElementById('avatar-container').classList.add('h-20', 'shrink-0'); // Shrink visualizer
+            chatList.classList.remove('hidden');
+
+            const qa = document.getElementById('quick-actions');
+            qa.classList.remove('hidden');
+            setTimeout(() => qa.classList.remove('opacity-0'), 50);
+
+            // Add User Message
+            addMessage(text, 'user');
+
+            // Add Loading
+            const loadingId = addLoading();
+
+            try {
+                // Call Backend with location if available
+                let url = '/api/v1/chat/message?msg=' + encodeURIComponent(text);
+                if (currentLat !== null && currentLon !== null) {
+                    url += `&lat=${currentLat}&lon=${currentLon}`;
+                }
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Remove Loading & Add Response
+                document.getElementById(loadingId).remove();
+
+                addMessage(data.response, 'ai');
+
+                // Speak Response
+                speak(data.response);
+
+            } catch (e) {
+                document.getElementById(loadingId).remove();
+                addMessage("حدث خطأ في الاتصال، حاول مرة أخرى.", 'ai');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            const isUser = sender === 'user';
+            div.className = `flex w-full ${isUser ? 'justify-end' : 'justify-start'} animate-fade-up`;
+
+            // Parse markdown for AI responses
+            const contentHtml = isUser ? text : (typeof marked !== 'undefined' ? marked.parse(text) : text);
+
+            div.innerHTML = `
+                <div class="max-w-[100%] sm:max-w-[80%] p-3 sm:p-4 text-sm leading-relaxed ${isUser ? 'user-bubble' : 'ai-bubble markdown-body'}">
+                    ${contentHtml}
+                </div>
+            `;
+            document.getElementById('chat-list').appendChild(div);
+
+            // Scroll to bottom
+            const container = document.getElementById('chat-list');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addLoading() {
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'flex w-full justify-start';
+            div.innerHTML = `
+                <div class="ai-bubble p-4 flex gap-1 items-center h-10">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                </div>
+            `;
+            document.getElementById('chat-list').appendChild(div);
+            return id;
+        }
+
+        function speak(text) {
+            if (!SpeechSynthesis) return;
+            SpeechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ar-SA'; // Standard Arabic for TTS
+            utterance.rate = 1.0;
+            SpeechSynthesis.speak(utterance);
+        }
+
+        function updateUIState(state) {
+            const visual = document.getElementById('mic-btn-visual');
+            const icon = document.getElementById('mic-icon');
+            const status = document.getElementById('status-text');
+
+            if (state === 'listening') {
+                visual.classList.add('recording-pulse');
+                visual.classList.replace('border-amber-500/30', 'border-red-500');
+                icon.className = 'fa-solid fa-microphone-lines text-5xl text-white';
+                status.textContent = "جاري الاستماع...";
+                status.classList.add('text-red-500');
+            } else {
+                visual.classList.remove('recording-pulse');
+                visual.classList.replace('border-red-500', 'border-amber-500/30');
+                icon.className = 'fa-solid fa-microphone text-5xl text-amber-500';
+                status.textContent = "اضغط لتتحدث";
+                status.classList.remove('text-red-500');
+            }
+        }
+    </script>
+</body>
+
+</html>

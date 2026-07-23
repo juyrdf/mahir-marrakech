@@ -1,0 +1,10 @@
+from .auth import router as auth
+from .planner import router as planner
+from .config import router as config
+from .chat import router as chat
+from .transport import router as transport
+from .admin import router as admin
+from .sync import router as sync
+from .places import router as places
+from .prices import router as prices
+from .scam import router as scam

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAHIR CONTROL ROOM | Marrakech</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Fonts/Icons -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&family=Inter:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-tajawal {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .map-container {
+            height: 400px;
+            width: 100%;
+            border-radius: 12px;
+            z-index: 1;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800 h-screen overflow-hidden">
+    <div id="app" class="flex h-full">
+
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-gray-900 text-white flex flex-col shadow-xl">
+            <div class="p-6 border-b border-gray-800 flex items-center gap-3">
+                <div
+                    class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center font-bold text-gray-900 text-lg">
+                    M</div>
+                <h1 class="text-xl font-bold tracking-tight">MAHIR <span class="text-amber-500 text-xs">CONTROL</span>
+                </h1>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-1">
+                <nav-item @click="currentTab = 'overview'" :active="currentTab === 'overview'" icon="fa-chart-pie"
+                    label="Overview"></nav-item>
+                <nav-item @click="currentTab = 'places'" :active="currentTab === 'places'" icon="fa-location-dot"
+                    label="Places (Spatial)"></nav-item>
+                <nav-item @click="currentTab = 'prices'" :active="currentTab === 'prices'" icon="fa-tag"
+                    label="Fair Price Engine"></nav-item>
+                <nav-item @click="currentTab = 'drivers'" :active="currentTab === 'drivers'" icon="fa-taxi"
+                    label="Fleet (Drivers)"></nav-item>
+                <nav-item @click="currentTab = 'safety'" :active="currentTab === 'safety'" icon="fa-shield-halved"
+                    label="Safety Shield"></nav-item>
+                <nav-item @click="currentTab = 'partners'" :active="currentTab === 'partners'" icon="fa-handshake"
+                    label="Partner Program"></nav-item>
+                <div class="pt-4 pb-2 px-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Analytics</div>
+                <nav-item @click="currentTab = 'analytics'" :active="currentTab === 'analytics'"
+                    icon="fa-magnifying-glass-chart" label="Deep Data"></nav-item>
+                <nav-item @click="currentTab = 'marketing'" :active="currentTab === 'marketing'" icon="fa-bullhorn"
+                    label="Notifications"></nav-item>
+
+                <div class="mt-8 mx-4">
+                    <a href="/static/chat.html"
+                        class="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold py-3 rounded-xl shadow-lg hover:shadow-amber-500/20 transition hover:scale-[1.02]">
+                        <i class="fa-solid fa-microphone-lines animate-pulse"></i> Talk to Mahir
+                    </a>
+                </div>
+            </nav>
+
+            <div class="p-4 border-t border-gray-800 glass">
+                <div class="flex items-center gap-3">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=amber&color=000"
+                        class="w-10 h-10 rounded-full border-2 border-amber-500">
+                    <div>
+                        <p class="text-sm font-bold">Admin</p>
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-500 text-black">SUPER</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto bg-gray-50 relative">
+            <header
+                class="bg-white/80 backdrop-blur h-16 border-b px-8 flex items-center justify-between sticky top-0 z-20">
+                <h2 class="text-xl font-bold text-gray-800 capitalize tracking-tight">{{ currentTabName }}</h2>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex items-center gap-1">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> SYSTEM LIVE
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-8">
+                <transition name="fade" mode="out-in">
+
+                    <!-- 1. OVERVIEW -->
+                    <div v-if="currentTab === 'overview'" key="overview">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                            <stat-card label="Active Tourists" value="1,248" change="+12%" color="green"
+                                icon="fa-users"></stat-card>
+                            <stat-card label="Verified Places" :value="places.length" color="blue"
+                                icon="fa-certificate"></stat-card>
+                            <stat-card label="Fair Price Items" :value="prices.length" color="amber"
+                                icon="fa-tag"></stat-card>
+                            <stat-card label="Safety SOS" value="0" color="red" icon="fa-shield-halved"></stat-card>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
+                            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-map-location-dot text-amber-500"></i> Live Activity Map
+                            </h3>
+                            <div id="leafletMap" class="map-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. PLACES (Spatial) -->
+                    <div v-else-if="currentTab === 'places'" key="places">
+                        <div class="flex justify-between items-center mb-6">
+                            <p class="text-gray-500 text-sm">Manage certified locations and spatial data.</p>
+                            <button @click="showModal('place')"
+                                class="bg-black text-white px-5 py-2.5 rounded-xl font-bold hover:bg-gray-800 shadow-lg transition-all active:scale-95 text-sm">+
+                                Add Place</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div v-for="place in places" :key="place.id"
+                                class="bg-white border rounded-2xl p-5 hover:shadow-xl transition-shadow border-gray-100">
+                                <div class="flex justify-between items-start mb-3">
+                                    <span
+                                        class="bg-blue-50 text-blue-600 text-xs px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider">{{
+                                        place.category }}</span>
+                                    <i v-if="place.is_verified"
+                                        class="fa-solid fa-circle-check text-blue-500 text-lg"></i>
+                                </div>
+                                <h4 class="font-bold text-lg mb-1">{{ place.name }}</h4>
+                                <p class="text-sm text-gray-500 line-clamp-2 mb-4">{{ place.description }}</p>
+                                <div class="flex items-center justify-between pt-4 border-t text-sm">
+                                    <span class="text-gray-400"><i class="fa-solid fa-location-dot mr-1"></i>
+                                        Marrakech</span>
+                                    <button @click="deleteItem('places', place.id)"
+                                        class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"><i
+                                            class="fa-solid fa-trash-can"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. FAIR PRICE ENGINE -->
+                    <div v-else-if="currentTab === 'prices'" key="prices">
+                        <div class="flex justify-between items-center mb-6">
+                            <p class="text-gray-500 text-sm">Centralized anti-scam price database.</p>
+                            <button @click="showModal('price')"
+                                class="bg-amber-500 text-black px-5 py-2.5 rounded-xl font-bold hover:bg-amber-400 shadow-lg transition-all active:scale-95 text-sm">+
+                                Add Fair Price</button>
+                        </div>
+                        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50 text-gray-400 text-xs uppercase tracking-widest">
+                                    <tr>
+                                        <th class="px-6 py-4">Item Name</th>
+                                        <th class="px-6 py-4">Price Range</th>
+                                        <th class="px-6 py-4">Unit</th>
+                                        <th class="px-6 py-4">Currency</th>
+                                        <th class="px-6 py-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 font-medium">
+                                    <tr v-for="p in prices" :key="p.id" class="hover:bg-amber-50/30">
+                                        <td class="px-6 py-4 font-bold text-gray-900">{{ p.item_name }}</td>
+                                        <td class="px-6 py-4 font-mono text-green-600">{{ p.min_price }} - {{
+                                            p.max_price }}</td>
+                                        <td class="px-6 py-4 text-gray-500">{{ p.unit }}</td>
+                                        <td class="px-6 py-4"><span class="bg-gray-100 px-2 py-1 rounded text-xs">{{
+                                                p.currency }}</span></td>
+                                        <td class="px-6 py-4">
+                                            <button @click="deleteItem('reference-prices', p.id)"
+                                                class="text-gray-300 hover:text-red-500"><i
+                                                    class="fa-solid fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 4. FLEET -->
+                    <div v-else-if="currentTab === 'drivers'" key="drivers">
+                        <div class="flex justify-between items-center mb-6">
+                            <p class="text-gray-500 text-sm">Monitor and manage the certified taxi fleet.</p>
+                            <button @click="showModal('driver')"
+                                class="bg-black text-white px-5 py-2.5 rounded-xl font-bold hover:bg-gray-800 shadow-lg text-sm">+
+                                Add Driver</button>
+                        </div>
+                        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50 text-gray-400 text-xs uppercase tracking-widest">
+                                    <tr>
+                                        <th class="px-6 py-4">Driver</th>
+                                        <th class="px-6 py-4">Plate</th>
+                                        <th class="px-6 py-4">Type</th>
+                                        <th class="px-6 py-4">Status</th>
+                                        <th class="px-6 py-4">Rating</th>
+                                        <th class="px-6 py-4 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50">
+                                    <tr v-for="d in drivers" :key="d.id" class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 flex items-center gap-3 font-bold">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                                                <i class="fa-solid fa-user text-gray-400"></i>
+                                            </div>
+                                            {{ d.full_name }}
+                                        </td>
+                                        <td class="px-6 py-4 font-mono text-xs uppercase">{{ d.vehicle_plate }}</td>
+                                        <td class="px-6 py-4"><span
+                                                class="px-2 py-1 bg-gray-100 rounded-lg text-xs font-bold">{{
+                                                d.vehicle_type }}</span></td>
+                                        <td class="px-6 py-4"><span
+                                                :class="d.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                                                class="px-2 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-tighter">{{
+                                                d.is_active ? 'Active' : 'Offline' }}</span></td>
+                                        <td class="px-6 py-4"><i class="fa-solid fa-star text-amber-500"></i> {{
+                                            d.rating }}</td>
+                                        <td class="px-6 py-4 text-right"><button @click="deleteItem('drivers', d.id)"
+                                                class="text-red-400 hover:text-red-600"><i
+                                                    class="fa-solid fa-trash"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 5. SAFETY SHIELD -->
+                    <div v-else-if="currentTab === 'safety'" key="safety">
+                        <div class="flex justify-between items-center mb-6">
+                            <p class="text-gray-500 text-sm">Manage reported scam zones and safety alerts.</p>
+                            <button @click="showModal('safety')"
+                                class="bg-red-500 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-red-600 shadow-lg text-sm">+
+                                Add Scam Zone</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div v-for="z in safetyZones" :key="z.id"
+                                class="bg-white border rounded-2xl p-6 hover:shadow-xl transition-shadow" :class="z.severity === 'high' ? 'border-red-200 bg-red-50/20' : 'border-gray-100'">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-triangle-exclamation" :class="z.severity === 'high' ? 'text-red-500' : 'text-amber-500'"></i>
+                                        <h4 class="font-bold text-lg">{{ z.name }}</h4>
+                                    </div>
+                                    <span :class="{
+                                        'bg-red-100 text-red-700': z.severity === 'high',
+                                        'bg-amber-100 text-amber-700': z.severity === 'medium',
+                                        'bg-blue-100 text-blue-700': z.severity === 'low'
+                                    }" class="text-[10px] font-bold px-2 py-1 rounded uppercase">{{ z.severity }}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4">{{ z.description }}</p>
+                                <div class="bg-white/50 p-3 rounded-lg mb-4 text-xs italic">
+                                    <i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i> {{ z.tips }}
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-gray-400">
+                                    <span><i class="fa-solid fa-arrows-to-circle mr-1"></i> {{ z.radius_meters }}m Radius</span>
+                                    <button @click="deleteItem('scam-zones', z.id)" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. PARTNER PROGRAM (CRM) -->
+                    <div v-else-if="currentTab === 'partners'" key="partners">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <!-- Discovery Column -->
+                            <div class="lg:col-span-2 space-y-6">
+                                <div class="bg-white border p-6 rounded-2xl shadow-sm">
+                                    <div class="flex justify-between items-center mb-6">
+                                        <h3 class="font-bold text-lg"><i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-2"></i>Discover New Partners</h3>
+                                        <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-1 rounded-full uppercase font-bold">Powered by Google</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <input v-model="discoveryQuery" placeholder="Search areas (e.g. Gueliz, Medina...)" class="flex-1 bg-gray-50 border-none rounded-xl p-3 outline-none focus:ring-2 ring-amber-500">
+                                        <button @click="runDiscovery" class="bg-black text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                    </div>
+                                    
+                                    <div v-if="discoveryResults.length" class="mt-8 space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                                        <div v-for="p in discoveryResults" :key="p.place_id" class="flex items-center justify-between p-4 border rounded-xl hover:border-amber-500 transition-colors bg-white group">
+                                            <div>
+                                                <h4 class="font-bold text-sm">{{ p.name }}</h4>
+                                                <p class="text-[11px] text-gray-400">{{ p.address }}</p>
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <span class="text-[10px] bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded">⭐️ {{ p.rating }}</span>
+                                                    <span class="text-[10px] text-gray-400 italic">"{{ p.summary || 'Premium Venue' }}"</span>
+                                                </div>
+                                            </div>
+                                            <button @click="onboardPartner(p)" class="bg-amber-500 text-white text-[10px] font-bold px-4 py-2 rounded-lg hover:bg-amber-600 shadow-sm">Join Program</button>
+                                        </div>
+                                    </div>
+                                    <div v-else class="mt-8 text-center py-16 text-gray-400 italic border-2 border-dashed border-gray-50 rounded-2xl">
+                                        <i class="fa-solid fa-map-location-dot text-4xl mb-4 opacity-20"></i>
+                                        <p>Search above to find Marrakech venues<br>via Real-time Google Maps Data.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Active Partners Column -->
+                            <div class="space-y-6">
+                                <div class="bg-black text-white p-6 rounded-3xl shadow-xl border border-gray-800">
+                                    <h3 class="font-bold text-lg mb-6"><i class="fa-solid fa-chart-line text-green-400 mr-2"></i>Revenue Engine</h3>
+                                    <div class="space-y-4">
+                                        <div v-for="part in activePartners" :key="part.id" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="text-sm font-bold">{{ part.name }}</span>
+                                                <span class="text-[10px] bg-green-500/20 text-green-400 font-bold px-2 py-0.5 rounded">{{ part.commission_rate }}%</span>
+                                            </div>
+                                            <p class="text-[10px] text-gray-500 flex items-center gap-1"><i class="fa-solid fa-link text-[8px]"></i> Active Commission Partner</p>
+                                        </div>
+                                    </div>
+                                    <div v-if="!activePartners.length" class="text-xs text-gray-600 text-center py-10">
+                                        No active partners yet.<br>Start onboarding above.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </transition>
+            </div>
+        </main>
+
+        <!-- MODAL SYSTEM -->
+        <div v-if="activeModal"
+            class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6">
+            <div class="bg-white p-8 rounded-[32px] w-full max-w-md shadow-2xl relative">
+                <button @click="activeModal = null"
+                    class="absolute top-4 right-4 text-gray-300 hover:text-gray-900 text-xl"><i
+                        class="fa-solid fa-circle-xmark"></i></button>
+                <h3 class="font-bold text-2xl mb-6 tracking-tight">Create New Entry</h3>
+
+                <!-- PLACE MODAL -->
+                <div v-if="activeModal === 'place'" class="space-y-4">
+                    <input v-model="form.name" placeholder="Place Name"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 ring-amber-500 outline-none font-medium">
+                    <select v-model="form.category"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none font-medium">
+                        <option>Restaurant</option>
+                        <option>Monument</option>
+                        <option>Souk</option>
+                        <option>Café</option>
+                    </select>
+                    <textarea v-model="form.description" placeholder="Description"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none font-medium h-24"></textarea>
+                </div>
+
+                <!-- PRICE MODAL -->
+                <div v-else-if="activeModal === 'price'" class="space-y-4">
+                    <input v-model="form.item_name" placeholder="Item Name (e.g. Petit Taxi)"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 ring-amber-500 outline-none font-medium">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input v-model.number="form.min_price" type="number" placeholder="Min Price"
+                            class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none">
+                        <input v-model.number="form.max_price" type="number" placeholder="Max Price"
+                            class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none">
+                    </div>
+                </div>
+
+                <!-- SAFETY MODAL -->
+                <div v-else-if="activeModal === 'safety'" class="space-y-4">
+                    <input v-model="form.name" placeholder="Zone Name"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 ring-red-500 outline-none font-medium">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input v-model.number="form.latitude" type="number" step="0.0001" placeholder="Lat"
+                            class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none">
+                        <input v-model.number="form.longitude" type="number" step="0.0001" placeholder="Lng"
+                            class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none">
+                    </div>
+                    <select v-model="form.severity"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none font-medium">
+                        <option value="low">Low Severity</option>
+                        <option value="medium">Medium Severity</option>
+                        <option value="high">High Severity (RED ALERT)</option>
+                    </select>
+                    <textarea v-model="form.description" placeholder="Short description of the scam"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none font-medium h-20"></textarea>
+                    <textarea v-model="form.tips" placeholder="Advice/Tips for travelers"
+                        class="w-full bg-gray-50 border-none rounded-2xl p-4 outline-none font-medium h-20"></textarea>
+                </div>
+
+                <button @click="saveEntry"
+                    class="w-full bg-black text-white font-bold py-4 rounded-2xl mt-8 hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Confirm & Deploy
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- COMPONENTS & LOGIC -->
+    <script>
+        const { createApp } = Vue
+
+        const NavItem = {
+            props: ['active', 'icon', 'label'],
+            template: `
+                <a class="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 font-bold text-sm"
+                   :class="active ? 'bg-amber-100/10 text-amber-500 border-l-4 border-amber-500' : 'text-gray-500 hover:text-white hover:bg-white/5'">
+                    <i :class="'fa-solid ' + icon" class="w-5 text-center"></i> {{ label }}
+                </a>
+            `
+        }
+
+        const StatCard = {
+            props: ['label', 'value', 'change', 'color', 'icon'],
+            template: `
+                <div class="bg-white p-6 rounded-[32px] shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-10 h-10 rounded-2xl flex items-center justify-center" :class="'bg-' + color + '-100 text-' + color + '-600'">
+                           <i :class="'fa-solid ' + icon"></i>
+                        </div>
+                        <span v-if="change" class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">{{ change }}</span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">{{ label }}</p>
+                        <h3 class="text-3xl font-extrabold text-gray-900 tracking-tighter">{{ value }}</h3>
+                    </div>
+                </div>
+            `
+        }
+
+        createApp({
+            components: { 'nav-item': NavItem, 'stat-card': StatCard },
+            data() {
+                return {
+                    currentTab: 'overview',
+                    places: [], prices: [], drivers: [], safetyZones: [], activePartners: [], discoveryResults: [],
+                    discoveryQuery: 'top restaurants in Marrakech',
+                    activeModal: null,
+                    form: { unit: 'piece', currency: 'MAD', category: 'Restaurant' },
+                    mapInstance: null
+                }
+            },
+            computed: {
+                currentTabName() {
+                    const map = { 'overview': 'Real-time Intelligence', 'places': 'Certified City Map', 'prices': 'Fair Price Engine', 'drivers': 'Fleet Management', 'safety': 'Safety Shield', 'partners': 'Partner Program (CRM)', 'analytics': 'Data Science', 'marketing': 'Communications' }
+                    return map[this.currentTab] || 'Admin'
+                }
+            },
+            watch: {
+                currentTab(v) {
+                    if (v === 'overview') setTimeout(this.initMap, 100);
+                }
+            },
+            mounted() {
+                this.fetchAll();
+                setTimeout(this.initMap, 500);
+            },
+            methods: {
+                async fetchAll() {
+                    try {
+                        const dp = await fetch('/api/v1/admin/drivers'); this.drivers = await dp.json();
+                        const pp = await fetch('/api/v1/admin/places'); this.places = await pp.json();
+                        const ep = await fetch('/api/v1/admin/reference-prices'); this.prices = await ep.json();
+                        const sp = await fetch('/api/v1/admin/scam-zones'); this.safetyZones = await sp.json();
+                        const pp_part = await fetch('/api/v1/admin/partners'); this.activePartners = await pp_part.json();
+                    } catch (e) { console.error("Fetch Error:", e); }
+                },
+                showModal(type) {
+                    this.activeModal = type;
+                    if (type === 'price') {
+                        this.form = { item_name: '', min_price: 0, max_price: 0, unit: 'trip', currency: 'MAD' };
+                    } else if (type === 'safety') {
+                        this.form = { name: '', description: '', latitude: 31.62, longitude: -7.98, radius_meters: 500, severity: 'medium', tips: '', is_active: true };
+                    } else {
+                        this.form = { name: '', category: 'Restaurant', description: '', is_verified: true, metadata_json: {} };
+                    }
+                },
+                async saveEntry() {
+                    let endpoint = 'places';
+                    if (this.activeModal === 'price') endpoint = 'reference-prices';
+                    if (this.activeModal === 'safety') endpoint = 'scam-zones';
+                    
+                    const res = await fetch(`/api/v1/admin/${endpoint}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(this.form)
+                    });
+                    if (res.ok) { this.activeModal = null; this.fetchAll(); }
+                },
+                async runDiscovery() {
+                    const res = await fetch(`/api/v1/admin/discover-partners?query=${encodeURIComponent(this.discoveryQuery)}`);
+                    this.discoveryResults = await res.json();
+                },
+                async onboardPartner(place) {
+                    try {
+                        const res = await fetch('/api/v1/admin/onboard-partner', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                place_id: String(place.place_id),
+                                name: place.name,
+                                address: place.address,
+                                category: 'Restaurant',
+                                commission_rate: 10.0
+                            })
+                        });
+                        
+                        if (res.ok) { 
+                            const data = await res.json();
+                            alert(`🌟 Success! ${data.name} is now a Mahir Partner.`);
+                            this.fetchAll();
+                            this.discoveryResults = this.discoveryResults.filter(x => x.place_id !== place.place_id);
+                        } else {
+                            const err = await res.json();
+                            alert(`❌ Failed: ${err.detail || 'Internal Server Error'}`);
+                        }
+                    } catch (e) {
+                        alert(`⚠️ Network Error: ${e.message}`);
+                    }
+                },
+                async deleteItem(endpoint, id) {
+                    if (confirm("Permanently delete this entry?")) {
+                        await fetch(`/api/v1/admin/${endpoint}/${id}`, { method: 'DELETE' });
+                        this.fetchAll();
+                    }
+                },
+                initMap() {
+                    if (document.getElementById('leafletMap') && !this.mapInstance) {
+                        this.mapInstance = L.map('leafletMap').setView([31.6225, -7.9898], 13);
+                        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                            attribution: '&copy; OpenStreetMap'
+                        }).addTo(this.mapInstance);
+                        this.places.forEach(p => {
+                            // Extract coordinates if available (mocking for demo since we haven't mapped location objects in Vue yet)
+                            L.circleMarker([31.6258, -7.9891], { radius: 8, color: '#f59e0b', fillColor: '#fbbf24', fillOpacity: 0.8 }).addTo(this.mapInstance);
+                        });
+                    }
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+
+</html>
