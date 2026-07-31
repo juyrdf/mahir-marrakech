@@ -345,7 +345,10 @@ class AIService:
             # Align context_location for downstream lookups
             request.context_location = context_data.get("id", request.context_location)
             logger_name = context_data.get("name", "Unknown")
-            print(f"AI RAG | Semantic POI Match: {logger_name}")
+            try:
+                print(f"AI RAG | Semantic POI Match: {logger_name.encode('ascii', errors='replace').decode('ascii')}")
+            except Exception:
+                pass
         else:
             context_key = request.context_location.lower().replace(" ", "_")
             context_data = self.knowledge_base.get(context_key, {})
